@@ -224,7 +224,7 @@ export default {
         value: 'quanx',
         label: 'Quantumult X'
       }, {
-        value: 'v2ray',
+        value: 'mixed',
         label: 'V2rayN/V2rayNG/Shadowrocket'
       }, {
         value: 'clash',
