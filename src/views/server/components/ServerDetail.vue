@@ -46,7 +46,7 @@
       <el-form-item label="Xray API 端口" prop="v2rayManagerPort">
         <el-input v-model="postForm.v2rayManagerPort" />
       </el-form-item>
-      <el-form-item label="XrayTag" prop="inboundTag">
+      <el-form-item label="inboundTag" prop="inboundTag">
         <el-input v-model="postForm.inboundTag" />
       </el-form-item>
       <el-form-item label="ws路径" prop="wsPath">

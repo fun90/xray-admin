@@ -32,6 +32,12 @@
         </template>
       </el-table-column>
 
+      <el-table-column width="150px" align="center" label="inboundTag">
+        <template slot-scope="scope">
+          <span>{{ scope.row.inboundTag }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column width="80px" align="center" label="wsPath">
         <template slot-scope="scope">
           <span>{{ scope.row.wsPath }}</span>
