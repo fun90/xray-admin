@@ -82,7 +82,7 @@
     <el-dialog title="修改" :visible.sync="accountDialog" :before-close="handlerAccountCloseDialog">
       <el-form ref="accountForm" :model="accountForm" label-width="80px">
         <el-form-item label="账号">
-          <el-input v-model="accountForm.accountNo" />
+          <el-input v-model="accountForm.uuid" readonly><el-button slot="append" @click="generatorUUID()">更新</el-button></el-input>
         </el-form-item>
         <el-form-item label="周期">
           <el-input v-model="accountForm.cycle" />
@@ -102,11 +102,9 @@
           <!-- <el-input v-model="accountForm.fromDate"></el-input> -->
         </el-form-item>
         <el-form-item label="增加N天">
-
           <el-input v-model="accountForm.addDay" size="medium">
             <el-button slot="append" @click="addToDate">增加</el-button>
           </el-input>
-
         </el-form-item>
         <el-form-item label="速率">
           <el-input v-model="accountForm.speed" />
@@ -114,7 +112,7 @@
         <el-form-item label="流量">
           <el-input v-model="accountForm.bandwidth" />
         </el-form-item>
-        <el-form-item label="连接数">
+        <el-form-item label="alterId">
           <el-input v-model="accountForm.maxConnection" />
         </el-form-item>
 
@@ -138,6 +136,26 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item v-if="accountForm.subconverterUrl !== '0'" label="客户端:">
+          <el-col :xs="24" :sm="6" :lg="6">
+            <el-select v-model="currentAppType" placeholder="请选择" @change="changeAppType">
+              <el-option
+                v-for="item in appTypes"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="订阅地址:">
+          <el-col>
+            <el-input v-model="accountForm.subscriptionUrl" readonly>  <el-button slot="prepend" @click="generatorNewSubscriptionUrl()">
+              <div v-if="!accountForm.subscriptionUrl">生成</div><div v-if="accountForm.subscriptionUrl">更新</div>
+            </el-button> <el-button slot="append" @click="handlerCopy(accountForm.subscriptionUrl2,$event)">复制</el-button> </el-input>
+          </el-col>
+        </el-form-item>
+
         <el-form-item>
 
           <el-button @click="submitUpdateAccount">提交</el-button>
@@ -151,7 +169,7 @@
 </template>
 
 <script>
-import { getAccounts, accountsList, updateAccountServer, updateAccount, reloadProxyAccount } from '@/api/account'
+import { accountsList, updateAccount, reloadProxyAccount, generatorSubscriptionUrlByAdmin, getUUID } from '@/api/account'
 import { serverList } from '@/api/server'
 import Pagination from '@/components/Pagination'
 import clip from '@/utils/clipboard'
@@ -204,7 +222,6 @@ export default {
       }
       return statusMap[status]
     }
-
   },
   data() {
     return {
@@ -230,6 +247,27 @@ export default {
         addDay: 0,
         level: 0
       },
+
+      currentAppType: 'quan',
+      appTypes: [{
+        value: 'quan',
+        label: 'Quantumult'
+      }, {
+        value: 'quanx',
+        label: 'Quantumult X'
+      }, {
+        value: 'mixed',
+        label: 'V2rayN/V2rayNG/Shadowrocket'
+      }, {
+        value: 'clash',
+        label: 'Clash'
+      }, {
+        value: 'surge&ver=4',
+        label: 'Surge 4'
+      }, {
+        value: 'surfboard',
+        label: 'Surfboard'
+      }],
 
       accountDialog: false,
 
@@ -259,9 +297,6 @@ export default {
     this.getList()
   },
   methods: {
-    onChange(v) {
-      console.log(v)
-    },
     addToDate() {
       var toTime = this.accountForm.toDate
       this.accountForm.toDate = toTime + oneDayms * this.accountForm.addDay
@@ -272,7 +307,7 @@ export default {
     openAccountDidlog(row) {
       this.accountForm = row
       this.accountDialog = true
-      //  console.log(row)
+      this.setSubscriptionUrl(this.currentAppType)
       //  this.accountForm.rangeDate= [new Date().setTime(this.accountForm.fromDate),new Date().setTime(this.accountForm.toDate)]
     },
     handlerCopy(text, event) {
@@ -280,30 +315,11 @@ export default {
       clip(text, event)
     },
     submitUpdateAccount() {
-      console.log(this.accountForm)
       this.accountForm.content = null
       updateAccount(this.accountForm).then(_ => {
         this.$message.success('提交成功')
         this.getList()
       })
-    },
-    submitUpdateServer() {
-      if (!this.chooseServerId) {
-        this.$message.error('请选择服务器')
-        this.$refs.multipleTable.clearSelection()
-        return
-      }
-      var data = { 'id': this.opAccountId, 'serverId': this.chooseServerId }
-      updateAccountServer(data).then(response => {
-        this.$message.success('提交成功,原账号将失效,请使用新账号')
-        this.getList()
-      })
-    },
-    handlerServerCloseDialog(done) {
-      this.$refs.multipleTable.clearSelection()
-      this.chooseServerId = null
-      this.opAccountId = null
-      done()
     },
     handleCurrentChange(rows) {
       this.chooseServerId = null
@@ -317,7 +333,6 @@ export default {
       }
       var row = rows[0]
       this.chooseServerId = row && row.id ? row.id : null
-      console.log(this.chooseServerId)
     },
     getServerList() {
       serverList(this.serverListQuery).then(response => {
@@ -326,26 +341,19 @@ export default {
       })
     },
 
-    changeServerDidlog(accountId) {
-      this.serverDialog = true
-      this.opAccountId = accountId
-      this.getServerList()
-    },
     formatDate(date) {
       if (!date) return ''
       var year = date.getFullYear()
       var month = date.getMonth() + 1
-      var date = date.getDate()
+      var day = date.getDate()
       var hour = date.getHours()
       var minute = date.getMinutes()
       var second = date.getSeconds()
-      return year + '-' + month + '-' + date + ' ' + hour + ':' + minute + ':' + second
+      return year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
     },
     getList() {
-      var isAdmin = this.roles.indexOf('admin') > -1
       this.listLoading = true
-      var req = isAdmin ? accountsList(this.listQuery) : getAccounts(1)
-      req.then(response => {
+      accountsList(this.listQuery).then(response => {
         this.list = response.obj.content
         for (var i = 0; i < this.list.length; i++) {
           var content = this.list[i].content
@@ -359,6 +367,54 @@ export default {
     },
     reloadProxy() {
       reloadProxyAccount()
+    },
+    generatorNewSubscriptionUrl() {
+      const isEdit = !!this.accountForm.subscriptionUrl
+      if (isEdit) {
+        this.$confirm('确认更新操作？成功原订阅地址将失效。', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          roundButton: true,
+          center: false
+        }).then(() => {
+          this.trueGeneratorSubscriptionUrl()
+        }).catch(() => {
+
+        })
+      } else {
+        this.trueGeneratorSubscriptionUrl()
+      }
+    },
+    trueGeneratorSubscriptionUrl() {
+      const data = { 'id': this.accountForm.id, 'type': 0 }
+      this.accountForm.subscriptionUrl = 'response.ob'
+      generatorSubscriptionUrlByAdmin(data).then(response => {
+        this.accountForm.subscriptionUrl = response.obj
+        this.setSubscriptionUrl(this.currentAppType)
+        this.$message.success('更新订阅地址成功，原地址已经失效')
+        this.getList()
+      })
+    },
+    changeAppType(appTypeValue) {
+      this.currentAppType = appTypeValue
+      this.setSubscriptionUrl(appTypeValue)
+    },
+    setSubscriptionUrl(appType) {
+      if (this.accountForm.subconverterUrl !== '0' && this.accountForm.subscriptionUrl) {
+        this.accountForm.subscriptionUrl2 = this.accountForm.subconverterUrl + '?target=' + appType + '&url=' + encodeURIComponent(this.accountForm.subscriptionUrl)
+      } else {
+        this.accountForm.subscriptionUrl2 = this.accountForm.subscriptionUrl
+      }
+    },
+    generatorUUID() {
+      getUUID().then(response => {
+        this.accountForm.uuid = response.obj
+        updateAccount({ 'id': this.accountForm.id, 'uuid': this.accountForm.uuid }).then(_ => {
+          this.$message.success('更新UUID成功')
+          this.getList()
+        })
+      })
     }
   }
 }

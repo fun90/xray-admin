@@ -67,8 +67,8 @@
                 </el-form-item>
 
                 <el-form-item label="订阅地址(推荐):">
-                  <el-col :xs="24" :sm="12" :lg="12">
-                    <el-input v-model="account.subscriptionUrl2">  <el-button slot="prepend" @click="generatorNewSubscriptionUrl()">
+                  <el-col>
+                    <el-input v-model="account.subscriptionUrl2" readonly>  <el-button slot="prepend" @click="generatorNewSubscriptionUrl()">
                       <div v-if="!account.subscriptionUrl2">生成</div><div v-if="account.subscriptionUrl2">更新</div>
                     </el-button> <el-button slot="append" @click="handlerCopy(account.subscriptionUrl2,$event)">复制</el-button> </el-input>
                   </el-col>
@@ -225,7 +225,7 @@ export default {
         label: 'Quantumult X'
       }, {
         value: 'v2ray',
-        label: 'V2rayN / Shadowrocket'
+        label: 'V2rayN/V2rayNG/Shadowrocket'
       }, {
         value: 'clash',
         label: 'Clash'
@@ -269,7 +269,6 @@ export default {
         page: 1,
         pageSize: 10
       },
-      isEdit: false,
       serverList: null,
       account: null,
       total: 0,
@@ -290,7 +289,7 @@ export default {
   },
   methods: {
     changeAppType(appTypeValue) {
-      this.currentAppType = appTypeValue;
+      this.currentAppType = appTypeValue
       if (this.account.subconverterUrl !== '0' && this.account.subscriptionUrl) {
         this.account.subscriptionUrl2 = this.account.subconverterUrl + '?target=' + appTypeValue + '&url=' + encodeURIComponent(this.account.subscriptionUrl)
       } else {
@@ -298,7 +297,8 @@ export default {
       }
     },
     generatorNewSubscriptionUrl() {
-      if (this.isEdit) {
+      const isEdit = !!this.account.subscriptionUrl
+      if (isEdit) {
         this.$confirm('确认更新操作？成功原订阅地址将失效。', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -366,7 +366,7 @@ export default {
         } else {
           this.account.subscriptionUrl2 = this.account.subscriptionUrl
         }
-        this.isEdit = !!this.account.subscriptionUrl
+        // this.isEdit = !!this.account.subscriptionUrl
         // for (var i = 0; i < this.list.length; i++) {
         //   var content = this.list[i].content
         //   this.list[i].content = content ? JSON.parse(content) : {}

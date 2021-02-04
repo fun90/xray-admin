@@ -2,27 +2,33 @@
   <div class="app-container">
     <el-table v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%">
 
-      <el-table-column width="100px" align="center" label="服务器名称">
+      <el-table-column width="200px" align="center" label="服务器名称">
         <template slot-scope="scope">
           <span>{{ scope.row.serverName }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="150px" align="center" label="访问域名">
+      <el-table-column width="150px" align="center" label="域名">
         <template slot-scope="scope">
           <span>{{ scope.row.clientDomain }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="150px" align="center" label="中间件地址">
+      <el-table-column width="80px" align="center" label="端口">
         <template slot-scope="scope">
-          <span>{{ scope.row.proxyIp }}</span>
+          <span>{{ scope.row.clientPort }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="80px" align="center" label="v2ray地址">
+      <el-table-column width="80px" align="center" label="协议">
         <template slot-scope="scope">
-          <span>{{ scope.row.v2rayIp }}</span>
+          <span>{{ scope.row.protocol }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column width="80px" align="center" label="传输方式">
+        <template slot-scope="scope">
+          <span>{{ scope.row.network }}</span>
         </template>
       </el-table-column>
 
@@ -32,9 +38,9 @@
         </template>
       </el-table-column>
 
-        <el-table-column width="80px" align="center" label="服务器等级">
+      <el-table-column width="80px" align="center" label="等级">
         <template slot-scope="{row}">
-           <span>{{ row.level | levelFilter}}</span>
+          <span>{{ row.level | levelFilter }}</span>
         </template>
       </el-table-column>
 
@@ -44,7 +50,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="80px" align="center" label="服务器状态">
+      <el-table-column width="80px" align="center" label="状态">
         <template slot-scope="{row}">
           <el-tag :type="row.status | statusFilter">
             {{ row.status |statusFilter2 }}
@@ -96,7 +102,7 @@ export default {
         '0': '等级0',
         '1': '等级1',
         '2': '等级2',
-        '3': '等级3',
+        '3': '等级3'
       }
       return levelMap[level]
     }

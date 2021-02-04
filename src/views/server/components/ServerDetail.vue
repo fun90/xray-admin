@@ -1,16 +1,16 @@
 <template>
-  <div class="createPost-container">
-    <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container" label-width="100px">
+  <div class="createPost-container" style="margin-right: 50px; margin-top: 30px">
+    <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container" label-width="150px">
 
       <el-form-item label="服务器名称" prop="serverName">
         <el-input v-model="postForm.serverName" />
       </el-form-item>
 
-      <el-form-item label="访问域名" prop="clientDomain">
+      <el-form-item label="域名" prop="clientDomain">
         <el-input v-model="postForm.clientDomain" />
       </el-form-item>
 
-      <el-form-item label="访问端口" prop="clientPort">
+      <el-form-item label="端口" prop="clientPort">
         <el-input v-model="postForm.clientPort" />
       </el-form-item>
 
@@ -19,33 +19,36 @@
           <el-radio v-model="postForm.supportTLS" :label="true">是</el-radio>
           <el-radio v-model="postForm.supportTLS" :label="false">否</el-radio>
         </el-radio-group>
-        <!-- <el-radio v-model="postForm.supportTLS" label="true">是</el-radio>
-        <el-radio v-model="postForm.supportTLS" label="false">否</el-radio> -->
       </el-form-item>
-      <el-form-item label="中间件地址" prop="proxyIp">
-        <el-input v-model="postForm.proxyIp" placeholder="127.0.0.1" />
+      <el-form-item label="协议" prop="protocol">
+        <el-select v-model="postForm.protocol">
+          <el-option
+            v-for="item in protocolOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
       </el-form-item>
-      <el-form-item label="中间件端口" prop="proxyPort">
-        <el-input v-model="postForm.proxyPort" />
+      <el-form-item label="传输方式" prop="network">
+        <el-select v-model="postForm.network">
+          <el-option
+            v-for="item in networkOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
       </el-form-item>
-      <el-form-item label="v2ray地址" prop="v2rayIp">
+      <el-form-item label="Xray地址" prop="v2rayIp">
         <el-input v-model="postForm.v2rayIp" placeholder="127.0.0.1" />
       </el-form-item>
-      <el-form-item label="v2ray端口" prop="v2rayPort">
-        <el-input v-model="postForm.v2rayPort" />
-      </el-form-item>
-      <el-form-item label="v2ray管理端口" prop="v2rayManagerPort">
+      <el-form-item label="Xray API 端口" prop="v2rayManagerPort">
         <el-input v-model="postForm.v2rayManagerPort" />
       </el-form-item>
-      <el-form-item label="流量倍数" prop="Multiple">
-        <el-input v-model="postForm.multiple" placeholder="1" />
-      </el-form-item>
-      <el-form-item label="v2rayTag" prop="inboundTag">
+      <el-form-item label="XrayTag" prop="inboundTag">
         <el-input v-model="postForm.inboundTag" />
       </el-form-item>
-      <!-- <el-form-item label="连接数" prop="maxConnection">
-        <el-input v-model="postForm.maxConnection"></el-input>
-      </el-form-item> -->
       <el-form-item label="ws路径" prop="wsPath">
         <el-input v-model="postForm.wsPath" placeholder="/ws/%s/" />
       </el-form-item>
@@ -53,7 +56,10 @@
         <el-input v-model="postForm.desc" />
       </el-form-item>
 
-        <el-form-item label="服务器等级" prop="level">
+      <el-form-item label="流量倍数" prop="Multiple">
+        <el-input v-model="postForm.multiple" placeholder="1" />
+      </el-form-item>
+      <el-form-item label="服务器等级" prop="level">
         <el-select v-model="postForm.level">
           <el-option
             v-for="item in levelOptions"
@@ -83,6 +89,7 @@
 
 <script>
 import { addServer, getServer, updateServer } from '@/api/server'
+
 const defaultForm = {
   serverName: '',
   clientDomain: '',
@@ -99,12 +106,13 @@ const defaultForm = {
   v2rayManagerPort: 62789,
   // 流量倍数
   multiple: 1,
+  protocol: 'trojan',
 
   // 说明
   desc: '',
   // 服务器状态
   status: 1,
-  level:0,
+  level: 0,
   inboundTag: '',
   // 单账号最大连接数
   maxConnection: 100,
@@ -119,12 +127,13 @@ const defaultRules = {
 
   // proxy中间件管理 ip port;
 
-  proxyIp: { required: true, trigger: 'blur' },
-  proxyPort: { required: true, trigger: 'blur' },
+  // proxyIp: { required: true, trigger: 'blur' },
+  // proxyPort: { required: true, trigger: 'blur' },
   // v2ray 开放 的 ip 和端口
   v2rayIp: { required: true, trigger: 'blur' },
-  v2rayPort: { required: true, trigger: 'blur' },
+  // v2rayPort: { required: true, trigger: 'blur' },
   v2rayManagerPort: { required: true, trigger: 'blur' },
+  protocol: { required: true, trigger: 'blur' },
   // 流量倍数
   multiple: { required: true, trigger: 'blur' },
 
@@ -137,7 +146,8 @@ const defaultRules = {
   // 单账号最大连接数
   // maxConnection:{ required: true, trigger: 'blur' },
   // ws路径
-  wsPath: { required: true, trigger: 'blur' }
+  // wsPath: { required: true, trigger: 'blur' },
+  network: { required: true, trigger: 'blur' }
 }
 
 export default {
@@ -155,13 +165,19 @@ export default {
       rules: Object.assign({}, defaultRules),
       tempRoute: {},
       statusOptions: [{ value: 1, label: '上线' }, { value: 0, label: '下线' }],
-      levelOptions: [{ value: 0, label: '等级0' }, { value: 1, label: '等级1' },{ value: 2, label: '等级2' },{ value: 3, label: '等级3' }]
+      levelOptions: [{ value: 0, label: '等级0' }, { value: 1, label: '等级1' }, { value: 2, label: '等级2' }, {
+        value: 3,
+        label: '等级3'
+      }],
+      protocolOptions: [{ value: 'trojan', label: 'Trojan' }, { value: 'vless', label: 'VLESS' }, {
+        value: 'vmess',
+        label: 'VEMSS'
+      }],
+      networkOptions: [{ value: 'tcp', label: 'TCP' }, { value: 'ws', label: 'WebSocket' }, { value: 'kcp', label: 'KCP' }]
 
     }
   },
-  computed: {
-
-  },
+  computed: {},
   created() {
     if (this.isEdit) {
       const id = this.$route.params && this.$route.params.id
@@ -212,40 +228,40 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "~@/styles/mixin.scss";
+  @import "~@/styles/mixin.scss";
 
-.createPost-container {
-  position: relative;
+  .createPost-container {
+    position: relative;
 
-  .createPost-main-container {
-    padding: 40px 45px 20px 50px;
+    .createPost-main-container {
+      padding: 40px 45px 20px 50px;
 
-    .postInfo-container {
-      position: relative;
-      @include clearfix;
-      margin-bottom: 10px;
+      .postInfo-container {
+        position: relative;
+        @include clearfix;
+        margin-bottom: 10px;
 
-      .postInfo-container-item {
-        float: left;
+        .postInfo-container-item {
+          float: left;
+        }
       }
+    }
+
+    .word-counter {
+      width: 40px;
+      position: absolute;
+      right: 10px;
+      top: 0px;
     }
   }
 
-  .word-counter {
-    width: 40px;
-    position: absolute;
-    right: 10px;
-    top: 0px;
+  .article-textarea /deep/ {
+    textarea {
+      padding-right: 40px;
+      resize: none;
+      border: none;
+      border-radius: 0px;
+      border-bottom: 1px solid #bfcbd9;
+    }
   }
-}
-
-.article-textarea /deep/ {
-  textarea {
-    padding-right: 40px;
-    resize: none;
-    border: none;
-    border-radius: 0px;
-    border-bottom: 1px solid #bfcbd9;
-  }
-}
 </style>
