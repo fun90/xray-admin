@@ -42,13 +42,21 @@ export function serverList(page) {
   })
 }
 /**
- * 获取可用的服务器列表 vip
-
+ * 获取当前用户可用的服务器列表 vip
  */
 export function availableServers() {
   return request({
     url: `/server/findServersForAccount`,
-    method: 'get',
+    method: 'get'
+  })
+}
+/**
+ * 获取可用服务器列表 admin
+ */
+export function allAvailableServers() {
+  return request({
+    url: `/server/findAllAvailable`,
+    method: 'get'
   })
 }
 /**

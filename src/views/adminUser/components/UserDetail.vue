@@ -10,6 +10,10 @@
         <el-input v-model="postForm.password" />
       </el-form-item>
 
+      <el-form-item label="备注" prop="remark">
+        <el-input v-model="postForm.remark" />
+      </el-form-item>
+
       <el-form-item label="角色" prop="role">
 
         <el-select v-model="postForm.role">
@@ -78,8 +82,8 @@ export default {
       this.$refs.postForm.validate(valid => {
         if (valid) {
           this.loading = true
-          const formData= Object.assign({},this.postForm )
-           formData.password=md5(formData.password)
+          const formData = Object.assign({}, this.postForm)
+          formData.password = md5(formData.password)
           addUser(formData).then(response => {
             this.$notify({
               title: '成功',
@@ -131,7 +135,7 @@ export default {
   }
 }
 
-.article-textarea /deep/ {
+.article-textarea {
   textarea {
     padding-right: 40px;
     resize: none;

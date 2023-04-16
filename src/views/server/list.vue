@@ -2,6 +2,12 @@
   <div class="app-container">
     <el-table v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%">
 
+      <el-table-column width="100px" align="center" label="服务器ID">
+        <template slot-scope="scope">
+          <span>{{ scope.row.id }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column width="200px" align="center" label="服务器名称">
         <template slot-scope="scope">
           <span>{{ scope.row.serverName }}</span>
@@ -47,12 +53,6 @@
       <el-table-column width="80px" align="center" label="等级">
         <template slot-scope="{row}">
           <span>{{ row.level | levelFilter }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column width="200px" align="center" label="服务描述">
-        <template slot-scope="scope">
-          <span>{{ scope.row.desc }}</span>
         </template>
       </el-table-column>
 

@@ -12,7 +12,7 @@
             <el-row>
               <el-col :xs="24" :sm="24" :lg="12">
                 <el-form-item label="等级:">
-                  {{ account.level |levelFilter }}
+                  {{ levelFilter(account.level) }}
                 </el-form-item>
                 <el-form-item label=" 有效时间:">
                   <!--  {{ account.fromDate | parseTime('{y}-{m}-{d} {h}:{i}') }} - -->
@@ -50,10 +50,12 @@
                     <font v-else color="red">{{ account.statVO?(account.statVO.flow/1024/1024/1024).toFixed(2) : 0 }}</font>
                     /{{ account.bandwidth }}GB/周期</span>
                 </el-form-item>
-                <el-form-item label="连接数:">{{ account.maxConnection }}/账号
+                <el-form-item label="AlterId:">{{ account.maxConnection }}
                 </el-form-item>
 
-                <el-form-item v-if="account.subconverterUrl !== '0'" label="选择客户端类型:">
+                <el-form-item />
+
+                <el-form-item label="1、选择客户端类型:" class="strong-label">
                   <el-col :xs="24" :sm="6" :lg="6">
                     <el-select v-model="currentAppType" placeholder="请选择" @change="changeAppType">
                       <el-option
@@ -66,93 +68,22 @@
                   </el-col>
                 </el-form-item>
 
-                <el-form-item label="订阅地址(推荐):">
+                <el-form-item label="2、复制订阅链接">
                   <el-col>
-                    <el-input v-model="account.subscriptionUrl2" readonly>  <el-button slot="prepend" @click="generatorNewSubscriptionUrl()">
+                    <el-input v-model="account.subscriptionUrl2" readonly>  <el-button slot="append" @click="generatorNewSubscriptionUrl()">
                       <div v-if="!account.subscriptionUrl2">生成</div><div v-if="account.subscriptionUrl2">更新</div>
-                    </el-button> <el-button slot="append" @click="handlerCopy(account.subscriptionUrl2,$event)">复制</el-button> </el-input>
+                    </el-button> <el-button slot="prepend" @click="handlerCopy(account.subscriptionUrl2,$event)">复制</el-button> </el-input>
                   </el-col>
                 </el-form-item>
               </el-col>
 
               <el-col :xs="24" :sm="24" :lg="12">
                 <div v-if="account.subscriptionUrl2">
-                  <el-form-item label="订阅地址二维码">
+                  <el-form-item label="订阅链接二维码">
                     <vue-qr :text="account.subscriptionUrl2" qid="qrcode2" />
                   </el-form-item>
                 </div>
               </el-col>
-            </el-row>
-
-          </el-card>
-        </el-col>
-
-        <!-- <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col">
-        <el-card>
-          <div slot="header" >
-          服务器信息
-          </div>
-          <div v-if="account.server">
-           <el-form-item label="服务器名称:">   {{ account.server.serverName  }}  </el-form-item>
-            <el-form-item label="服务器地址:">{{ account.server.clientDomain }}</el-form-item>
-            <el-form-item label="流量倍数:">{{ account.server.multiple }}</el-form-item>
-            <el-form-item label="服务器状态:">{{ account.server.status |statusFilter2 }}</el-form-item>
-            <div> <el-link icon="el-icon-edit" type="primary" @click="changeServerDidlog(account.id)">更改服务器</el-link> </div>
-          </div>
-          <div v-else><el-link icon="el-icon-edit" type="primary" @click="changeServerDidlog(account.id)">选择你的服务器</el-link> </div>
-        </el-card>
-      </el-col> -->
-
-        <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col">
-          <el-card>
-            <div slot="header">
-              v2ray账号
-            </div>
-
-            <el-row>
-
-              <el-col :xs="24" :sm="24" :lg="12">
-
-                <el-form-item label="服务器:">
-                  <el-select v-model="serverId" placeholder="请选择服务器" @change="serverChange">
-                    <el-option
-                      v-for="item in serverList"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-
-                  </el-select>
-                </el-form-item>
-                <div v-if="v2rayAccount">
-                  <el-form-item label="地址:">{{ v2rayAccount.add }}</el-form-item>
-                  <el-form-item label="端口:">{{ v2rayAccount.port }}</el-form-item>
-                  <el-form-item label="用户Id:">{{ v2rayAccount.id }}</el-form-item>
-                  <el-form-item label="额外Id(alterId):">{{ v2rayAccount.aid }}</el-form-item>
-                  <el-form-item label="加密方式:">auto</el-form-item>
-                  <el-form-item label="传输协议:">{{ v2rayAccount.net }}</el-form-item>
-                  <el-form-item label="伪装类型:">{{ v2rayAccount.type }}</el-form-item>
-                  <el-form-item label="传输域名(host):">{{ v2rayAccount.host }}</el-form-item>
-                  <el-form-item label="路径(path):">{{ v2rayAccount.path }}</el-form-item>
-                  <el-form-item label="底层传输安全(tls):">{{ v2rayAccount.tls }}</el-form-item>
-                  <el-form-item label="服务器描述:">{{ server.desc }}</el-form-item>
-                </div>
-              </el-col>
-
-              <el-col :xs="24" :sm="24" :lg="12">
-                <div v-if="v2rayAccount">
-                  <el-form-item label="">
-                    <el-col :xs="24" :sm="24" :lg="6">
-                      <el-input v-model="toColip"> <el-button slot="append" @click="handlerCopy(toColip,$event)">复制</el-button> </el-input>
-                    </el-col>
-                  </el-form-item>
-                  <el-form-item label="">
-                    <vue-qr :text="toColip" qid="qrcode" />
-                  </el-form-item>
-
-                </div>
-              </el-col>
-
             </el-row>
 
           </el-card>
@@ -164,28 +95,18 @@
   </div>
 </template>
 <script>
-import { getAccount, getV2rayAccount, generatorSubscriptionUrl } from '@/api/account'
-import { availableServers, getServer } from '@/api/server'
+import { getAccount, generatorSubscriptionUrl } from '@/api/account'
 import clip from '@/utils/clipboard'
-import { Base64 } from 'js-base64'
 import VueQr from 'vue-qr'
 import store from '@/store'
 import permission from '@/directive/permission/index.js'
+import { getAccountLevels, getClients } from '@/api/config'
 
 export default {
   name: 'UserAccount',
   components: { VueQr },
   directives: { permission },
   filters: {
-    levelFilter(status) {
-      const statusMap = {
-        0: '等级0',
-        1: '等级1',
-        2: '等级2',
-        3: '等级3'
-      }
-      return statusMap[status]
-    },
     speedFilter: function(v) {
       if (v <= 1024) { return '流畅' } else if (v > 1024 && v <= 2024) {
         return '高速'
@@ -217,26 +138,9 @@ export default {
   },
   data() {
     return {
-      appTypes: [{
-        value: 'quan',
-        label: 'Quantumult'
-      }, {
-        value: 'quanx',
-        label: 'Quantumult X'
-      }, {
-        value: 'mixed',
-        label: 'V2rayN/V2rayNG/Shadowrocket'
-      }, {
-        value: 'clash',
-        label: 'Clash'
-      }, {
-        value: 'surge&ver=4',
-        label: 'Surge 4'
-      }, {
-        value: 'surfboard',
-        label: 'Surfboard'
-      }],
-      currentAppType: 'quan',
+      levelOptions: null,
+      appTypes: null,
+      currentAppType: '',
       serverId: null,
       server: null,
       accountFormOptions: [{
@@ -285,7 +189,12 @@ export default {
   },
   created() {
     this.getRemoteAccount()
-    this.getServerList()
+    getClients().then(response => {
+      this.appTypes = response.obj
+    })
+    getAccountLevels().then(response => {
+      this.levelOptions = response.obj
+    })
   },
   methods: {
     changeAppType(appTypeValue) {
@@ -293,13 +202,16 @@ export default {
       if (this.account.subconverterUrl !== '0' && this.account.subscriptionUrl) {
         this.account.subscriptionUrl2 = this.account.subconverterUrl + '?target=' + appTypeValue + '&url=' + encodeURIComponent(this.account.subscriptionUrl)
       } else {
-        this.account.subscriptionUrl2 = this.account.subscriptionUrl
+        const urlObj = new URL(this.account.subscriptionUrl)
+        urlObj.searchParams.set('target', appTypeValue)
+        urlObj.searchParams.set('type', '1')
+        this.account.subscriptionUrl2 = urlObj.toString()
       }
     },
     generatorNewSubscriptionUrl() {
       const isEdit = !!this.account.subscriptionUrl
       if (isEdit) {
-        this.$confirm('确认更新操作？成功原订阅地址将失效。', '提示', {
+        this.$confirm('确认更新操作？成功原订阅链接将失效。', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning',
@@ -317,34 +229,12 @@ export default {
     trueGeneratorSubscriptionUrl() {
       generatorSubscriptionUrl().then(response => {
         this.getRemoteAccount()
-        this.$message.success('更新订阅地址成功，原地址已经失效')
+        this.$message.success('更新订阅链接成功，原地址已经失效')
       })
     },
     handlerCopy(text, event) {
       //   console.log(Base64.encode('dankogai'))
       clip(text, event)
-    },
-    serverChange() {
-      getServer(this.serverId).then(response => {
-        this.server = response.obj
-      })
-      getV2rayAccount({ 'serverId': this.serverId }).then(response => {
-        this.v2rayAccount = response.obj
-        this.toColip = 'vmess://' + Base64.encode(JSON.stringify(this.v2rayAccount))
-      })
-    },
-    getServerList() {
-      availableServers().then(response => {
-        this.serverList = []
-
-        for (var i in response.obj) {
-          var server = response.obj[i]
-          var localserver = {}
-          localserver.value = server.id
-          localserver.label = server.serverName
-          this.serverList[i] = localserver
-        }
-      })
     },
     formatDate(date) {
       if (!date) return ''
@@ -374,6 +264,15 @@ export default {
         // }
         // console.log(this.list);
       })
+    },
+    levelFilter(status) {
+      const opts = this.levelOptions
+      for (const i in opts) {
+        if (status === opts[i].value) {
+          return opts[i].label
+        }
+      }
+      return null
     }
   }
 }
@@ -381,7 +280,7 @@ export default {
 <style lang="scss" scoped>
   .form-item{
     margin-bottom: 10px;
-    }
+  }
   .card-panel-col {
     margin-right: 10px;
     margin-bottom: 20px;

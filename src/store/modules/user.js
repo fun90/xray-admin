@@ -43,14 +43,14 @@ const actions = {
     })
   }, */
   login({ commit }, userInfo) {
-    //console.log(userInfo)
+    // console.log(userInfo)
 	  const { email, password } = userInfo
 	  return new Promise((resolve, reject) => {
 		  login({ email: email.trim(), password: password
 	  }).then(response => {
 		  const { obj } = response
-        // commit('SET_TOKEN', obj.role)
-		 console.log(obj)
+        commit('SET_TOKEN', obj.role)
+		 // console.log(obj)
 		  resolve(obj)
 	  }).catch(e => {
         reject(e)

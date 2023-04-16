@@ -6,10 +6,14 @@
         <el-input v-model="listQuery.userEmail" placeholder="email" />
       </el-col>
       <el-col :span="3">
-        <el-button @click="getList">搜索</el-button>
+        <el-input v-model="listQuery.userRemark" placeholder="remark" />
       </el-col>
       <el-col :span="3">
-        <el-button @click="reloadProxy">重载</el-button>
+        <el-button @click="getList">搜索</el-button>
+      </el-col>
+      <el-col :span="6">
+        <el-button @click="clickReloadBtn">刷新服务器</el-button>
+        <el-button @click="clickGenerateBtn">生成分流规则文件</el-button>
       </el-col>
     </el-row>
 
@@ -55,7 +59,7 @@
       <el-table-column align="left" label="">
         <template slot-scope="scope">
           <div>单服务器连接数：{{ scope.row.maxConnection }}/账号</div>
-          <div>账号等级:{{ scope.row.level |levelFilter }}</div>
+          <div>账号等级:{{ levelFilter(scope.row.level) }}</div>
           <div>账号状态:{{ scope.row.status |accountStatusFilter }}</div>
         </template>
       </el-table-column>
@@ -63,9 +67,14 @@
       <el-table-column align="left" label="">
         <template slot-scope="scope">
 
-          <div>
-            <el-link icon="el-icon-edit" type="primary" @click="openAccountDidlog(scope.row)">编辑账号</el-link>
-          </div>
+          <el-row :gutter="20">
+            <el-col :span="50">
+              <el-link icon="el-icon-edit" type="primary" @click="openAccountDialog(scope.row)">编辑账号</el-link>
+            </el-col>
+            <el-col :span="50">
+              <el-link icon="el-icon-link" type="primary" @click="openSubscribeDialog(scope.row)">订阅链接</el-link>
+            </el-col>
+          </el-row>
         </template>
       </el-table-column>
     </el-table>
@@ -136,24 +145,11 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="accountForm.subconverterUrl !== '0'" label="客户端:">
-          <el-col :xs="24" :sm="6" :lg="6">
-            <el-select v-model="currentAppType" placeholder="请选择" @change="changeAppType">
-              <el-option
-                v-for="item in appTypes"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-col>
-        </el-form-item>
-        <el-form-item label="订阅地址:">
-          <el-col>
-            <el-input v-model="accountForm.subscriptionUrl" readonly>  <el-button slot="prepend" @click="generatorNewSubscriptionUrl()">
-              <div v-if="!accountForm.subscriptionUrl">生成</div><div v-if="accountForm.subscriptionUrl">更新</div>
-            </el-button> <el-button slot="append" @click="handlerCopy(accountForm.subscriptionUrl2,$event)">复制</el-button> </el-input>
-          </el-col>
+
+        <el-form-item label="指定服务">
+          <el-select v-model="accountForm.serverIds" placeholder="请选择服务器" filterable multiple style="width:500px">
+            <el-option v-for="item in serverList" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
 
         <el-form-item>
@@ -165,12 +161,34 @@
 
     </el-dialog>
 
+    <!-- 订阅链接 -->
+    <el-dialog title="订阅链接" :visible.sync="subscribeDialog">
+      <el-form label-width="80px">
+        <el-form-item label="客户端:">
+          <el-select v-model="currentAppType" placeholder="请选择" @change="changeAppType">
+            <el-option
+              v-for="item in appTypes"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="订阅链接:">
+          <el-input v-model="accountForm.subscriptionUrl" readonly>  <el-button slot="prepend" @click="generatorNewSubscriptionUrl()">
+            <div v-if="!accountForm.subscriptionUrl">生成</div><div v-if="accountForm.subscriptionUrl">更新</div>
+          </el-button> <el-button slot="append" @click="handlerCopy(accountForm.subscriptionUrl2,$event)">复制</el-button> </el-input>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 import { accountsList, updateAccount, reloadProxyAccount, generatorSubscriptionUrlByAdmin, getUUID } from '@/api/account'
-import { serverList } from '@/api/server'
+import { allAvailableServers } from '@/api/server'
+import { getClients, getAccountLevels, generateRulesFile } from '@/api/config'
 import Pagination from '@/components/Pagination'
 import clip from '@/utils/clipboard'
 import { Base64 } from 'js-base64'
@@ -199,15 +217,6 @@ export default {
         return '极速'
       }
     },
-    levelFilter(status) {
-      const statusMap = {
-        0: '等级0',
-        1: '等级1',
-        2: '等级2',
-        3: '等级3'
-      }
-      return statusMap[status]
-    },
     statusFilter(status) {
       const statusMap = {
         '1': 'success',
@@ -225,10 +234,7 @@ export default {
   },
   data() {
     return {
-      levelOptions: [{ value: 0, label: '等级0' }, { value: 1, label: '等级1' }, { value: 2, label: '等级2' }, {
-        value: 3,
-        label: '等级3'
-      }],
+      levelOptions: [],
       accountFormOptions: [{
         value: 1,
         label: '正常'
@@ -245,31 +251,15 @@ export default {
         bandwidth: null,
         status: '1',
         addDay: 0,
-        level: 0
+        level: 0,
+        serverIds: []
       },
 
-      currentAppType: 'quan',
-      appTypes: [{
-        value: 'quan',
-        label: 'Quantumult'
-      }, {
-        value: 'quanx',
-        label: 'Quantumult X'
-      }, {
-        value: 'mixed',
-        label: 'V2rayN/V2rayNG/Shadowrocket'
-      }, {
-        value: 'clash',
-        label: 'Clash'
-      }, {
-        value: 'surge&ver=4',
-        label: 'Surge 4'
-      }, {
-        value: 'surfboard',
-        label: 'Surfboard'
-      }],
+      currentAppType: '',
+      appTypes: [],
 
       accountDialog: false,
+      subscribeDialog: false,
 
       roles: store.getters.roles,
       toColip: '',
@@ -288,15 +278,24 @@ export default {
       listQuery: {
         page: 1,
         pageSize: 50,
-        userEmail: ''
+        userEmail: '',
+        userRemark: ''
       }
     }
   },
   computed: {},
   created() {
     this.getList()
+    this.refreshServerList()
+    getClients().then(response => {
+      this.appTypes = response.obj
+    })
+    getAccountLevels().then(response => {
+      this.levelOptions = response.obj
+    })
   },
   methods: {
+
     addToDate() {
       var toTime = this.accountForm.toDate
       this.accountForm.toDate = toTime + oneDayms * this.accountForm.addDay
@@ -304,11 +303,16 @@ export default {
     handlerAccountCloseDialog(done) {
       done()
     },
-    openAccountDidlog(row) {
+    openAccountDialog(row) {
+      this.refreshServerList()
       this.accountForm = row
       this.accountDialog = true
       this.setSubscriptionUrl(this.currentAppType)
       //  this.accountForm.rangeDate= [new Date().setTime(this.accountForm.fromDate),new Date().setTime(this.accountForm.toDate)]
+    },
+    openSubscribeDialog(row) {
+      this.accountForm = row
+      this.subscribeDialog = true
     },
     handlerCopy(text, event) {
       //   console.log(Base64.encode('dankogai'))
@@ -334,10 +338,17 @@ export default {
       var row = rows[0]
       this.chooseServerId = row && row.id ? row.id : null
     },
-    getServerList() {
-      serverList(this.serverListQuery).then(response => {
-        this.serverList = response.obj.content
-        this.serverTotal = response.obj.total
+
+    refreshServerList() {
+      allAvailableServers().then(response => {
+        this.serverList = []
+        for (const i in response.obj) {
+          const server = response.obj[i]
+          const localserver = {}
+          localserver.value = server.id
+          localserver.label = server.serverName
+          this.serverList[i] = localserver
+        }
       })
     },
 
@@ -365,13 +376,22 @@ export default {
         this.listLoading = false
       })
     },
-    reloadProxy() {
-      reloadProxyAccount()
+    clickReloadBtn() {
+      reloadProxyAccount().then(_ => {
+        this.$message.success('操作成功')
+        this.getList()
+      })
+    },
+    clickGenerateBtn() {
+      generateRulesFile().then(_ => {
+        this.$message.success('操作成功')
+        this.getList()
+      })
     },
     generatorNewSubscriptionUrl() {
       const isEdit = !!this.accountForm.subscriptionUrl
       if (isEdit) {
-        this.$confirm('确认更新操作？成功原订阅地址将失效。', '提示', {
+        this.$confirm('确认更新操作？成功原订阅链接将失效。', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning',
@@ -392,7 +412,7 @@ export default {
       generatorSubscriptionUrlByAdmin(data).then(response => {
         this.accountForm.subscriptionUrl = response.obj
         this.setSubscriptionUrl(this.currentAppType)
-        this.$message.success('更新订阅地址成功，原地址已经失效')
+        this.$message.success('更新订阅链接成功，原地址已经失效')
         this.getList()
       })
     },
@@ -404,7 +424,10 @@ export default {
       if (this.accountForm.subconverterUrl !== '0' && this.accountForm.subscriptionUrl) {
         this.accountForm.subscriptionUrl2 = this.accountForm.subconverterUrl + '?target=' + appType + '&url=' + encodeURIComponent(this.accountForm.subscriptionUrl)
       } else {
-        this.accountForm.subscriptionUrl2 = this.accountForm.subscriptionUrl
+        const urlObj = new URL(this.accountForm.subscriptionUrl)
+        urlObj.searchParams.set('target', appType)
+        urlObj.searchParams.set('type', '1')
+        this.accountForm.subscriptionUrl2 = urlObj.toString()
       }
     },
     generatorUUID() {
@@ -415,6 +438,16 @@ export default {
           this.getList()
         })
       })
+    },
+
+    levelFilter(status) {
+      const opts = this.levelOptions
+      for (const i in opts) {
+        if (status === opts[i].value) {
+          return opts[i].label
+        }
+      }
+      return null
     }
   }
 }

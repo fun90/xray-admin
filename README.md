@@ -1,7 +1,16 @@
 ## xray-admin
-Xray管理面板，由[v2ray-manager-console](https://github.com/master-coder-ll/v2ray-manager-console)改造而来
+Xray管理面板，由[v2ray-manager-console](https://github.com/master-coder-ll/v2ray-manager-console) 改造而来
 
 [后台服务 xray-admin-service](https://github.com/fun90/xray-admin-service)
+
+## 开发
+nodejs: v16.20.0
+
+`npm install`
+
+`npm run dev`
+
+
 
 ## Build
 
