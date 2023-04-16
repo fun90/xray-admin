@@ -255,7 +255,7 @@ export default {
     }
   }
 
-  .article-textarea /deep/ {
+  .article-textarea {
     textarea {
       padding-right: 40px;
       resize: none;
