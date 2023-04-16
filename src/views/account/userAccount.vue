@@ -179,6 +179,11 @@
             <div v-if="!accountForm.subscriptionUrl">生成</div><div v-if="accountForm.subscriptionUrl">更新</div>
           </el-button> <el-button slot="append" @click="handlerCopy(accountForm.subscriptionUrl2,$event)">复制</el-button> </el-input>
         </el-form-item>
+        <el-form-item label="二维码">
+          <div v-if="accountForm.subscriptionUrl2">
+            <vue-qr :text="accountForm.subscriptionUrl2" qid="qrcode2" />
+          </div>
+        </el-form-item>
       </el-form>
     </el-dialog>
 
@@ -194,11 +199,12 @@ import clip from '@/utils/clipboard'
 import { Base64 } from 'js-base64'
 import store from '@/store'
 import permission from '@/directive/permission/index.js'
+import VueQr from 'vue-qr'
 
 var oneDayms = 3600 * 1000 * 24
 export default {
   name: 'UserAccount',
-  components: { Pagination },
+  components: { Pagination, VueQr },
   directives: { permission },
   filters: {
     accountStatusFilter(status) {
@@ -329,7 +335,6 @@ export default {
       this.chooseServerId = null
       if (rows.length > 1) {
         this.$message.error('只能选择一个服务器')
-
         return
       }
       if (rows.length < 1) {
@@ -419,6 +424,7 @@ export default {
     changeAppType(appTypeValue) {
       this.currentAppType = appTypeValue
       this.setSubscriptionUrl(appTypeValue)
+      this.$message.success('切换成功，请复制或扫码')
     },
     setSubscriptionUrl(appType) {
       if (this.accountForm.subconverterUrl !== '0' && this.accountForm.subscriptionUrl) {
