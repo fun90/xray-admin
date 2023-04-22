@@ -162,7 +162,7 @@
     </el-dialog>
 
     <!-- 订阅链接 -->
-    <el-dialog title="订阅链接" :visible.sync="subscribeDialog">
+    <el-dialog title="订阅链接" :visible.sync="subscribeDialog" :before-close="handlerSubscribeDialog">
       <el-form label-width="80px">
         <el-form-item label="客户端:">
           <el-select v-model="currentAppType" placeholder="请选择" @change="changeAppType">
@@ -174,8 +174,14 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="规则模式:">
+          <el-select v-model="whitelistModel" placeholder="请选择" @change="changeRuleModel">
+            <el-option key="false" label="黑名单" value="false" />
+            <el-option key="true" label="白名单" value="true" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="订阅链接:">
-          <el-input v-model="accountForm.subscriptionUrl" readonly>  <el-button slot="prepend" @click="generatorNewSubscriptionUrl()">
+          <el-input v-model="accountForm.subscriptionUrl2" readonly>  <el-button slot="prepend" @click="generatorNewSubscriptionUrl()">
             <div v-if="!accountForm.subscriptionUrl">生成</div><div v-if="accountForm.subscriptionUrl">更新</div>
           </el-button> <el-button slot="append" @click="handlerCopy(accountForm.subscriptionUrl2,$event)">复制</el-button> </el-input>
         </el-form-item>
@@ -262,6 +268,7 @@ export default {
       },
 
       currentAppType: '',
+      whitelistModel: 'false',
       appTypes: [],
 
       accountDialog: false,
@@ -313,8 +320,15 @@ export default {
       this.refreshServerList()
       this.accountForm = row
       this.accountDialog = true
-      this.setSubscriptionUrl(this.currentAppType)
+      this.setSubscriptionUrl()
       //  this.accountForm.rangeDate= [new Date().setTime(this.accountForm.fromDate),new Date().setTime(this.accountForm.toDate)]
+    },
+    handlerSubscribeDialog(done) {
+      this.currentAppType = ''
+      this.whitelistModel = 'false'
+      this.subscriptionUrl = ''
+      this.subscriptionUrl2 = ''
+      done()
     },
     openSubscribeDialog(row) {
       this.accountForm = row
@@ -416,23 +430,29 @@ export default {
       this.accountForm.subscriptionUrl = 'response.ob'
       generatorSubscriptionUrlByAdmin(data).then(response => {
         this.accountForm.subscriptionUrl = response.obj
-        this.setSubscriptionUrl(this.currentAppType)
+        this.setSubscriptionUrl()
         this.$message.success('更新订阅链接成功，原地址已经失效')
         this.getList()
       })
     },
     changeAppType(appTypeValue) {
       this.currentAppType = appTypeValue
-      this.setSubscriptionUrl(appTypeValue)
+      this.setSubscriptionUrl()
       this.$message.success('切换成功，请复制或扫码')
     },
-    setSubscriptionUrl(appType) {
+    changeRuleModel(whitelistModel) {
+      this.whitelistModel = whitelistModel
+      this.setSubscriptionUrl()
+      this.$message.success('切换成功，请复制或扫码')
+    },
+    setSubscriptionUrl() {
       if (this.accountForm.subconverterUrl !== '0' && this.accountForm.subscriptionUrl) {
-        this.accountForm.subscriptionUrl2 = this.accountForm.subconverterUrl + '?target=' + appType + '&url=' + encodeURIComponent(this.accountForm.subscriptionUrl)
+        this.accountForm.subscriptionUrl2 = this.accountForm.subconverterUrl + '?target=' + this.currentAppType + '&whitelist=' + this.whitelistModel + '&url=' + encodeURIComponent(this.accountForm.subscriptionUrl)
       } else {
         const urlObj = new URL(this.accountForm.subscriptionUrl)
-        urlObj.searchParams.set('target', appType)
+        urlObj.searchParams.set('target', this.currentAppType)
         urlObj.searchParams.set('type', '1')
+        urlObj.searchParams.set('whitelist', this.whitelistModel)
         this.accountForm.subscriptionUrl2 = urlObj.toString()
       }
     },
