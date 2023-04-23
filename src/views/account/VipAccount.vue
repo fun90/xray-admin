@@ -1,6 +1,20 @@
 <template>
   <div class="dashboard-editor-container">
     <el-form v-if="account" size="mini">
+      <el-row>
+        <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col">
+          <el-card>
+            <div slot="header">
+              使用说明
+            </div>
+            <el-row>
+              <el-col :xs="24" :sm="24" :lg="12">
+                <Notice name="必读" />
+              </el-col>
+            </el-row>
+          </el-card>
+        </el-col>
+      </el-row>
       <el-row :gutter="20">
         <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col">
           <el-card>
@@ -18,14 +32,13 @@
                   <!--  {{ account.fromDate | parseTime('{y}-{m}-{d} {h}:{i}') }} - -->
 
                   <span>
-                    <font v-if="account.toDate>new Date().getTime()">  {{ account.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</font>
-                    <font v-else color="red">  {{ account.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</font>
+                    <span v-if="account.toDate>new Date().getTime()">  {{ account.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+                    <span v-else style="color: red; ">  {{ account.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
                   </span>
                 </el-form-item>
 
                 <el-form-item label=" 账号状态:">
                   <!--  {{ account.fromDate | parseTime('{y}-{m}-{d} {h}:{i}') }} - -->
-
                   <span>
                     <font v-if="account.status == 1">  {{ account.status |accountStatusFilter }}</font>
                     <font v-else color="red">  {{ account.status |accountStatusFilter }}</font>
@@ -36,7 +49,6 @@
                   <span>{{ account.statVO.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
                 </el-form-item>
                 <el-form-item label="速率:">
-                  <span />
                   <span>{{ account.speed | speedFilter }}</span>
                 </el-form-item>
                 <el-form-item label="周期:">
@@ -46,14 +58,11 @@
                 <el-form-item label="流量:">
 
                   <span>
-                    <font v-if="(account.statVO?(account.statVO.flow/1024/1024/1024).toFixed(2) : 0)<account.bandwidth">{{ account.statVO?(account.statVO.flow/1024/1024/1024).toFixed(2) : 0 }}</font>
-                    <font v-else color="red">{{ account.statVO?(account.statVO.flow/1024/1024/1024).toFixed(2) : 0 }}</font>
-                    /{{ account.bandwidth }}GB/周期</span>
+                    <span v-if="(account.statVO?(account.statVO.flow/1024/1024/1024).toFixed(2) : 0)<account.bandwidth">{{ account.statVO ? (account.statVO.flow / 1024 / 1024 / 1024).toFixed(2) : 0 }}</span>
+                    <span v-else style="color: red; ">{{ account.statVO ? (account.statVO.flow / 1024 / 1024 / 1024).toFixed(2) : 0 }}</span>/{{ account.bandwidth }}GB/周期</span>
                 </el-form-item>
                 <el-form-item label="AlterId:">{{ account.maxConnection }}
                 </el-form-item>
-
-                <el-form-item />
 
                 <el-form-item label="1、选择客户端类型:" class="strong-label">
                   <el-col :xs="24" :sm="6" :lg="6">
@@ -70,9 +79,13 @@
 
                 <el-form-item label="2、复制订阅链接">
                   <el-col>
-                    <el-input v-model="account.subscriptionUrl2" readonly>  <el-button slot="append" @click="generatorNewSubscriptionUrl()">
-                      <div v-if="!account.subscriptionUrl2">生成</div><div v-if="account.subscriptionUrl2">更新</div>
-                    </el-button> <el-button slot="prepend" @click="handlerCopy(account.subscriptionUrl2,$event)">复制</el-button> </el-input>
+                    <el-input v-model="account.subscriptionUrl2" readonly>
+                      <el-button slot="append" @click="generatorNewSubscriptionUrl()">
+                        <div v-if="!account.subscriptionUrl2">生成</div>
+                        <div v-if="account.subscriptionUrl2">更新</div>
+                      </el-button>
+                      <el-button slot="prepend" @click="handlerCopy(account.subscriptionUrl2,$event)">复制</el-button>
+                    </el-input>
                   </el-col>
                 </el-form-item>
               </el-col>
@@ -101,14 +114,17 @@ import VueQr from 'vue-qr'
 import store from '@/store'
 import permission from '@/directive/permission/index.js'
 import { getAccountLevels, getClients } from '@/api/config'
+import Notice from '../dashboard/vip/components/Notice'
 
 export default {
   name: 'UserAccount',
-  components: { VueQr },
+  components: { VueQr, Notice },
   directives: { permission },
   filters: {
     speedFilter: function(v) {
-      if (v <= 1024) { return '流畅' } else if (v > 1024 && v <= 2024) {
+      if (v <= 1024) {
+        return '流畅'
+      } else if (v > 1024 && v <= 2024) {
         return '高速'
       } else {
         return '极速'
@@ -184,9 +200,7 @@ export default {
       }
     }
   },
-  computed: {
-
-  },
+  computed: {},
   created() {
     this.getRemoteAccount()
     getClients().then(response => {
@@ -199,6 +213,7 @@ export default {
   methods: {
     changeAppType(appTypeValue) {
       this.currentAppType = appTypeValue
+      appTypeValue = appTypeValue === 'shadowrocket' ? 'clash3' : appTypeValue
       if (this.account.subconverterUrl !== '0' && this.account.subscriptionUrl) {
         this.account.subscriptionUrl2 = this.account.subconverterUrl + '?target=' + appTypeValue + '&url=' + encodeURIComponent(this.account.subscriptionUrl)
       } else {
@@ -233,7 +248,6 @@ export default {
       })
     },
     handlerCopy(text, event) {
-      //   console.log(Base64.encode('dankogai'))
       clip(text, event)
     },
     formatDate(date) {
@@ -247,7 +261,7 @@ export default {
       return year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
     },
     getRemoteAccount() {
-    // var isAdmin=this.roles.indexOf('admin')>-1;
+      // var isAdmin=this.roles.indexOf('admin')>-1;
 
       getAccount(1).then(response => {
         this.account = response.obj
@@ -278,17 +292,19 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  .form-item{
-    margin-bottom: 10px;
-  }
-  .card-panel-col {
-    margin-right: 10px;
-    margin-bottom: 20px;
-  }
+.form-item {
+  margin-bottom: 10px;
+}
+
+.card-panel-col {
+  margin-right: 10px;
+  margin-bottom: 20px;
+}
+
 .dashboard-editor-container {
 
   padding: 10px;
- // background-color: rgb(240, 242, 245);
+  // background-color: rgb(240, 242, 245);
   position: relative;
 
   .chart-wrapper {
@@ -298,7 +314,7 @@ export default {
   }
 }
 
-@media (max-width:1024px) {
+@media (max-width: 1024px) {
   .chart-wrapper {
     padding: 8px;
   }

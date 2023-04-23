@@ -1,78 +1,31 @@
 <template>
   <div class="user-activity">
-    <div class="post" v-for=" (item,index) in list" :key="index">
+    <div v-for="(item,index) in list" :key="index" class="post">
       <div class="user-block">
         <img class="img-circle" :src="'https://apic.douyucdn.cn/upload/avanew/face/201705/15/17/109dae304969a8dc9dfd318c34cb71e9_middle.jpg'+avatarPrefix">
-        <span class="username text-muted">{{item.name}}</span>
-        <span class="description"> Sharing time - {{ item.updateTime | parseTime('{y}-{m}-{d}')}}</span>
+        <span class="username text-muted">{{ item.name }}</span>
+        <span class="description">{{ item.updateTime | parseTime('{y}-{m}-{d}') }}</span>
       </div>
-    
-        <div class="tui-editor-contents" v-html="item.content"  />
-      <!--     <markdown-editor mode='wysiwyg' v-model="item.content"  /> -->
-     
-      <!-- <ul class="list-inline">
-        <li>
-          <span class="link-black text-sm">
-            <i class="like" />
-            Share
-          </span>
-        </li>
-        
-        <li>
-          <span class="link-black text-sm">
-            <svg-icon icon-class="like" />
-            Like
-          </span>
-        </li>
-      </ul> -->
+      <div class="tui-editor-contents" v-html="item.content" />
     </div>
- 
-
-
-    <!-- <div class="user-activity">
-    <div class="post">
-      <div class="user-block">
-        <img class="img-circle" :src="'https://wpimg.wallstcn.com/57ed425a-c71e-4201-9428-68760c0537c4.jpg'+avatarPrefix">
-        <span class="username text-muted">Iron Man</span>
-        <span class="description">Shared publicly - 7:30 PM today</span>
-      </div>
-      <p>
-        Lorem ipsum represents a long-held tradition for designers,
-        typographers and the like. Some people hate it and argue for
-        its demise, but others ignore the hate as they create awesome
-        tools to help create filler text for everyone from bacon lovers
-        to Charlie Sheen fans.
-      </p>
-      <ul class="list-inline">
-        <li>
-          <span class="link-black text-sm">
-            <i class="el-icon-share" />
-            Share
-          </span>
-        </li>
-        <li>
-          <span class="link-black text-sm">
-            <svg-icon icon-class="like" />
-            Like
-          </span>
-        </li>
-      </ul>
-    </div> 
-    
-    -->
- </div> 
+  </div>
 </template>
 
 <script>
 
 const avatarPrefix = '?imageView2/1/w/80/h/80'
 const carouselPrefix = '?imageView2/2/h/440'
-import { listNotice } from '@/api/notice' 
-
+import { listNotice2 } from '@/api/notice'
 
 import 'tui-editor/dist/tui-editor-contents.css' // editor content
 export default {
-  components:{},
+  components: {},
+  props: {
+    // eslint-disable-next-line vue/require-default-prop
+    name: {
+      type: String
+    }
+  },
   data() {
     return {
       carouselImages: [
@@ -83,13 +36,14 @@ export default {
       ],
       avatarPrefix,
       carouselPrefix,
-      list:null
+      list: null
     }
-  }, created(){
-      listNotice().then(response =>{
-           this.list= response.obj
-           this.activeNames=0;
-      })
+  },
+  created() {
+    listNotice2(this.name).then(response => {
+      this.list = response.obj
+      this.activeNames = 0
+    })
   }
 }
 </script>

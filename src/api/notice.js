@@ -3,7 +3,14 @@ import request from '@/utils/request'
 export function listNotice() {
   return request({
     url: 'notice',
-    method: 'get',  
+    method: 'get'
+  })
+}
+
+export function listNotice2(name) {
+  return request({
+    url: name ? `notice?name=${name}` : 'notice',
+    method: 'get'
   })
 }
 

@@ -16,8 +16,8 @@
 
       <el-table-column width="200px" align="center" label="备注">
         <template slot-scope="scope">
-          <span>{{ scope.row.remark}}</span>
-          <span ><el-button type="text" @click="addRemark(scope.row.email,scope.row.id)">修改备注</el-button></span>
+          <span>{{ scope.row.remark }}</span>
+          <span><el-button type="text" @click="addRemark(scope.row.email,scope.row.id)">修改备注</el-button></span>
         </template>
       </el-table-column>
 
@@ -30,22 +30,21 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="Actions" width="241">
+      <el-table-column align="center" label="操作" width="241">
         <template slot-scope="scope">
           <el-button type="danger" size="small" @click="updateStatus(scope.row.id,scope.row.status)">{{ scope.row.status | statusFilter3 }}</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(scope.row.id)">Delete</el-button>
+          <el-button type="danger" size="small" @click="handleDelete(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.pageSize" @pagination="getList" />
-  
   </div>
 
 </template>
 
 <script>
-import { userList, updateUserStatus, delUser,addremark } from '@/api/user'
+import { userList, updateUserStatus, delUser, addremark } from '@/api/user'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
 const switchStatus = function(status) {
@@ -88,32 +87,30 @@ export default {
         page: 1,
         pageSize: 10
       }
-      ,
+
     }
   },
   created() {
     this.getList()
   },
   methods: {
-   addRemark(email,userId) {
-        this.$prompt('请输入'+email+'的备注', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-         
-        }).then(({ value }) => {
+    addRemark(email, userId) {
+      this.$prompt('请输入' + email + '的备注', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
 
-          addremark({'id':userId,'remark':value}).then(()=>{
+      }).then(({ value }) => {
+        addremark({ 'id': userId, 'remark': value }).then(() => {
           this.$message({
             type: 'success',
             message: '修改备注为: ' + value + '成功'
-          });
-          this.getList()
           })
-         
-        }).catch(() => {
-                
-        });
-      },
+          this.getList()
+        })
+      }).catch(() => {
+
+      })
+    },
     updateStatus(id, status) {
       var toStatus = switchStatus(status)
       var user = {}
