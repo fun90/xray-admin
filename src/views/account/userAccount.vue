@@ -38,8 +38,13 @@
             </span>
           </div>
           <div v-if="scope.row.statVO">
-
             <span>结算时间：{{ scope.row.statVO.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          </div>
+          <div v-if="scope.row.onlineIps">
+            在线IP数：
+            <el-tooltip :content="scope.row.onlineIps.join(',')" placement="bottom" effect="light">
+              <el-button>{{ scope.row.onlineIps.length }}</el-button>
+            </el-tooltip>
           </div>
         </template>
       </el-table-column>
