@@ -195,7 +195,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        pageSize: 50,
+        pageSize: 20,
         userEmail: ''
       }
     }

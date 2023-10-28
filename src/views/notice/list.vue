@@ -2,14 +2,14 @@
   <div class="app-container">
     <el-table v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%">
 
-      <el-table-column  align="center" width="120px" label="公告标题">
+      <el-table-column align="center" width="120px" label="公告标题">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-        <el-table-column  align="center" label="结束时间" width="120px">
+      <el-table-column align="center" label="结束时间" width="120px">
         <template slot-scope="scope">
-          <span>{{ scope.row.toDate | parseTime('{y}-{m}-{d}')}}</span>
+          <span>{{ scope.row.toDate | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
 
@@ -21,11 +21,10 @@
         </template>
       </el-table-column>
 
-    
-        <el-table-column  align="center" label="公告内容">
+      <el-table-column align="center" label="公告内容">
         <template slot-scope="scope">
-           <div v-html="scope.row.content" />
-         
+          <div v-html="scope.row.content" />
+
         </template>
       </el-table-column>
       <el-table-column align="center" label="Actions" width="241">
@@ -45,11 +44,11 @@
 
 <script>
 import { listNotice, delNotice } from '@/api/notice'
-//import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
+// import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
 export default {
   name: 'NoticeList',
- // components: {  },
+  // components: {  },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -73,7 +72,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        pageSize: 10
+        pageSize: 20
       }
     }
   },
@@ -105,7 +104,7 @@ export default {
       this.listLoading = true
       listNotice(this.listQuery).then(response => {
         this.list = response.obj
-     //   this.total = response.obj.total
+        //   this.total = response.obj.total
         this.listLoading = false
       })
     }
