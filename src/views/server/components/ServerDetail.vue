@@ -168,6 +168,9 @@ export default {
       levelOptions: [{ value: 0, label: '等级0' }, { value: 1, label: '等级1' }, { value: 2, label: '等级2' }, {
         value: 3,
         label: '等级3'
+      }, {
+        value: 4,
+        label: '等级4'
       }],
       protocolOptions: [{ value: 'trojan', label: 'Trojan' }, { value: 'vless', label: 'VLESS' }, {
         value: 'vmess',

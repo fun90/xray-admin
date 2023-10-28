@@ -1,62 +1,62 @@
 <template>
   <div class="app-container">
-    <el-table v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%">
+    <el-table v-loading="listLoading" :data="list" border fit highlight-current-row header-cell-style="cellStyle" cell-style="cellStyle">
 
-      <el-table-column width="100px" align="center" label="服务器ID">
-        <template slot-scope="scope">
-          <span>{{ scope.row.id }}</span>
-        </template>
-      </el-table-column>
+      <!--      <el-table-column label="服务器ID">-->
+      <!--        <template slot-scope="scope">-->
+      <!--          <span>{{ scope.row.id }}</span>-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
 
-      <el-table-column width="200px" align="center" label="服务器名称">
+      <el-table-column width="150" label="服务器名称">
         <template slot-scope="scope">
           <span>{{ scope.row.serverName }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="150px" align="center" label="域名">
+      <el-table-column width="180" label="域名">
         <template slot-scope="scope">
           <span>{{ scope.row.clientDomain }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="80px" align="center" label="端口">
+      <el-table-column width="80" label="端口">
         <template slot-scope="scope">
           <span>{{ scope.row.clientPort }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="80px" align="center" label="协议">
+      <el-table-column width="80" label="协议">
         <template slot-scope="scope">
           <span>{{ scope.row.protocol }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="80px" align="center" label="传输方式">
+      <el-table-column width="80" label="传输方式">
         <template slot-scope="scope">
           <span>{{ scope.row.network }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="150px" align="center" label="inboundTag">
+      <el-table-column width="150" label="inboundTag">
         <template slot-scope="scope">
           <span>{{ scope.row.inboundTag }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="80px" align="center" label="wsPath">
+      <el-table-column width="80" label="wsPath">
         <template slot-scope="scope">
           <span>{{ scope.row.wsPath }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="80px" align="center" label="等级">
+      <el-table-column width="80" label="等级">
         <template slot-scope="{row}">
           <span>{{ row.level | levelFilter }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="80px" align="center" label="状态">
+      <el-table-column width="80" label="状态">
         <template slot-scope="{row}">
           <el-tag :type="row.status | statusFilter">
             {{ row.status |statusFilter2 }}
@@ -65,7 +65,13 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="Actions" width="241">
+      <el-table-column label="服务描述">
+        <template slot-scope="scope">
+          <span>{{ scope.row.desc }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="操作" width="241">
         <template slot-scope="scope">
           <router-link :to="'/server/edit/'+scope.row.id">
             <el-button type="primary" size="small" icon="el-icon-edit">
@@ -108,7 +114,8 @@ export default {
         '0': '等级0',
         '1': '等级1',
         '2': '等级2',
-        '3': '等级3'
+        '3': '等级3',
+        '4': '等级4'
       }
       return levelMap[level]
     }
@@ -128,6 +135,7 @@ export default {
     this.getList()
   },
   methods: {
+    cellStyle() { return 'text-align:left' },
     handleDelete(id) {
       this.$confirm('此操作将永久删除, 是否继续?', '提示', {
         confirmButtonText: '确定',
