@@ -26,7 +26,6 @@ export function forgot(data) {
   })
 }
 
-
 export function changepassword(data) {
   return request({
     url: '/user/change-password',
@@ -74,7 +73,7 @@ export function addUser(data) {
 /**
  * 添加备注
  * addRemark
- * @param {int id ,string remark} data 
+ * @param {int id ,string remark} data
  */
 export function addremark(data) {
   return request({

@@ -31,10 +31,10 @@
         <template slot-scope="scope">
           <router-link :to="'/notice/edit/'+scope.row.id">
             <el-button type="primary" size="small" icon="el-icon-edit">
-              Edit
+              修改
             </el-button>
           </router-link>
-          <el-button type="danger" size="small" @click="handleDelete(scope.row.id)">Delete</el-button>
+          <el-button type="danger" size="small" @click="handleDelete(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

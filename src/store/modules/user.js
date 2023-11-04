@@ -1,6 +1,7 @@
 import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { resetRouter } from '@/router'
+import { constantRoutes, resetRouter } from '@/router'
+import Router from 'vue-router'
 
 const state = {
   token: getToken(),
@@ -44,15 +45,16 @@ const actions = {
   }, */
   login({ commit }, userInfo) {
     // console.log(userInfo)
-	  const { email, password } = userInfo
-	  return new Promise((resolve, reject) => {
-		  login({ email: email.trim(), password: password
-	  }).then(response => {
-		  const { obj } = response
+    const { email, password } = userInfo
+    return new Promise((resolve, reject) => {
+      login({
+        email: email.trim(), password: password
+      }).then(response => {
+        const { obj } = response
         commit('SET_TOKEN', obj.role)
-		 // console.log(obj)
-		  resolve(obj)
-	  }).catch(e => {
+        // console.log(obj)
+        resolve(obj)
+      }).catch(e => {
         reject(e)
       })
     })
@@ -90,7 +92,7 @@ const actions = {
   logout({ commit, state, dispatch }) {
     return new Promise((resolve, reject) => {
       if (!getToken()) {
-      //  console.log("state.token:"+state.token)
+        //  console.log("state.token:"+state.token)
         removeToken()
         resetRouter()
         dispatch('tagsView/delAllViews', null, { root: true })
@@ -141,6 +143,13 @@ const actions = {
       const accessRoutes = await dispatch('permission/generateRoutes', roles, { root: true })
 
       // dynamically add accessible routes
+      const createRouter = () => new Router({
+        // mode: 'history', // require service support
+        scrollBehavior: () => ({ y: 0 }),
+        routes: constantRoutes
+      })
+
+      const router = createRouter()
       router.addRoutes(accessRoutes)
 
       // reset visited views and cached views

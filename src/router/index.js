@@ -7,10 +7,10 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 /* Router Modules */
-import componentsRouter from './modules/components'
-import chartsRouter from './modules/charts'
-import tableRouter from './modules/table'
-import nestedRouter from './modules/nested'
+// import componentsRouter from './modules/components'
+// import chartsRouter from './modules/charts'
+// import tableRouter from './modules/table'
+// import nestedRouter from './modules/nested'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -96,7 +96,7 @@ export const constantRoutes = [
         meta: { title: 'Profile', icon: 'user', noCache: true }
       }
     ]
-  },
+  }
   // {
   //   path: '/documentation',
   //   component: Layout,
@@ -122,7 +122,6 @@ export const constantRoutes = [
   //     }
   //   ]
   // },
-
 
 ]
 /**
@@ -238,13 +237,13 @@ export const asyncRoutes = [
         path: 'create',
         component: () => import('@/views/server/create'),
         name: '创建服务器',
-        meta: { title: '创建服务器', icon: 'edit',roles: ['admin'] }
+        meta: { title: '创建服务器', icon: 'edit', roles: ['admin'] }
       },
       {
         path: 'edit/:id(\\d+)',
         component: () => import('@/views/server/edit'),
         name: '修改服务器',
-        meta: { title: '修改服务器', noCache: true, activeMenu: '/server/list' ,roles: ['admin'] },
+        meta: { title: '修改服务器', noCache: true, activeMenu: '/server/list', roles: ['admin'] },
         hidden: true
       },
       {
@@ -285,20 +284,20 @@ export const asyncRoutes = [
   {
     path: '/account',
     component: Layout,
-    name:'账号',
-    meta:{icon: 'tab', title:"账号"},
+    name: '账号',
+    meta: { icon: 'tab', title: '账号' },
     children: [
       {
         path: 'userAccount',
         component: () => import('@/views/account/userAccount'),
         name: '账号',
-        meta: { title: '账号管理' , roles: ['admin'] },
+        meta: { title: '账号管理', roles: ['admin'] }
       },
       {
         path: 'VipAccount',
         component: () => import('@/views/account/VipAccount'),
         name: '账号',
-        meta: { title: '我的账号' , roles: ['vip'] }
+        meta: { title: '我的账号', roles: ['vip'] }
 
       }
     ]
@@ -319,13 +318,13 @@ export const asyncRoutes = [
         path: 'create',
         component: () => import('@/views/notice/create'),
         name: '创建公告',
-        meta: { title: '创建公告', icon: 'edit',roles: ['admin'] }
+        meta: { title: '创建公告', icon: 'edit', roles: ['admin'] }
       },
       {
         path: 'edit/:id(\\d+)',
         component: () => import('@/views/notice/edit'),
         name: '修改公告',
-        meta: { title: '修改公告', noCache: true, activeMenu: '/notice/list' ,roles: ['admin'] },
+        meta: { title: '修改公告', noCache: true, activeMenu: '/notice/list', roles: ['admin'] },
         hidden: true
       },
       {
@@ -335,8 +334,7 @@ export const asyncRoutes = [
         meta: { title: '公告列表', icon: 'list', roles: ['vip'] }
       }
     ]
-  }
-  ,
+  },
   {
     path: '/inviteCode',
     component: Layout,
@@ -356,8 +354,7 @@ export const asyncRoutes = [
         meta: { title: '邀请码列表', icon: 'list' }
       }
     ]
-  }
-  ,
+  },
   {
     path: '/serverConfig',
     component: Layout,
@@ -373,13 +370,13 @@ export const asyncRoutes = [
         path: 'create',
         component: () => import('@/views/serverConfig/create'),
         name: '创建参数',
-        meta: { title: '创建参数', icon: 'edit',roles: ['admin'] }
+        meta: { title: '创建参数', icon: 'edit', roles: ['admin'] }
       },
       {
         path: 'edit/:id(\\d+)',
         component: () => import('@/views/serverConfig/edit'),
         name: '修改参数',
-        meta: { title: '修改参数', noCache: true, activeMenu: '/serverConfig/list' ,roles: ['admin'] },
+        meta: { title: '修改参数', noCache: true, activeMenu: '/serverConfig/list', roles: ['admin'] },
         hidden: true
       },
       {
@@ -390,175 +387,173 @@ export const asyncRoutes = [
       }
     ]
   },
-  //componentsRouter,
+  // componentsRouter,
 
+  //
+  //   {
+  //     path: '/tab',
+  //     component: Layout,
+  //     children: [
+  //       {
+  //         path: 'index',
+  //         component: () => import('@/views/tab/index'),
+  //         name: 'Tab',
+  //         meta: { title: 'Tab', icon: 'tab' }
+  //       }
+  //     ]
+  //   },
 
-//
-//   {
-//     path: '/tab',
-//     component: Layout,
-//     children: [
-//       {
-//         path: 'index',
-//         component: () => import('@/views/tab/index'),
-//         name: 'Tab',
-//         meta: { title: 'Tab', icon: 'tab' }
-//       }
-//     ]
-//   },
+  //   {
+  //     path: '/error',
+  //     component: Layout,
+  //     redirect: 'noRedirect',
+  //     name: 'ErrorPages',
+  //     meta: {
+  //       title: 'Error Pages',
+  //       icon: '404'
+  //     },
+  //     children: [
+  //       {
+  //         path: '401',
+  //         component: () => import('@/views/error-page/401'),
+  //         name: 'Page401',
+  //         meta: { title: '401', noCache: true }
+  //       },
+  //       {
+  //         path: '404',
+  //         component: () => import('@/views/error-page/404'),
+  //         name: 'Page404',
+  //         meta: { title: '404', noCache: true }
+  //       }
+  //     ]
+  //   },
 
-//   {
-//     path: '/error',
-//     component: Layout,
-//     redirect: 'noRedirect',
-//     name: 'ErrorPages',
-//     meta: {
-//       title: 'Error Pages',
-//       icon: '404'
-//     },
-//     children: [
-//       {
-//         path: '401',
-//         component: () => import('@/views/error-page/401'),
-//         name: 'Page401',
-//         meta: { title: '401', noCache: true }
-//       },
-//       {
-//         path: '404',
-//         component: () => import('@/views/error-page/404'),
-//         name: 'Page404',
-//         meta: { title: '404', noCache: true }
-//       }
-//     ]
-//   },
+  //   {
+  //     path: '/error-log',
+  //     component: Layout,
+  //     children: [
+  //       {
+  //         path: 'log',
+  //         component: () => import('@/views/error-log/index'),
+  //         name: 'ErrorLog',
+  //         meta: { title: 'Error Log', icon: 'bug' }
+  //       }
+  //     ]
+  //   },
 
-//   {
-//     path: '/error-log',
-//     component: Layout,
-//     children: [
-//       {
-//         path: 'log',
-//         component: () => import('@/views/error-log/index'),
-//         name: 'ErrorLog',
-//         meta: { title: 'Error Log', icon: 'bug' }
-//       }
-//     ]
-//   },
+  //   {
+  //     path: '/excel',
+  //     component: Layout,
+  //     redirect: '/excel/export-excel',
+  //     name: 'Excel',
+  //     meta: {
+  //       title: 'Excel',
+  //       icon: 'excel'
+  //     },
+  //     children: [
+  //       {
+  //         path: 'export-excel',
+  //         component: () => import('@/views/excel/export-excel'),
+  //         name: 'ExportExcel',
+  //         meta: { title: 'Export Excel' }
+  //       },
+  //       {
+  //         path: 'export-selected-excel',
+  //         component: () => import('@/views/excel/select-excel'),
+  //         name: 'SelectExcel',
+  //         meta: { title: 'Export Selected' }
+  //       },
+  //       {
+  //         path: 'export-merge-header',
+  //         component: () => import('@/views/excel/merge-header'),
+  //         name: 'MergeHeader',
+  //         meta: { title: 'Merge Header' }
+  //       },
+  //       {
+  //         path: 'upload-excel',
+  //         component: () => import('@/views/excel/upload-excel'),
+  //         name: 'UploadExcel',
+  //         meta: { title: 'Upload Excel' }
+  //       }
+  //     ]
+  //   },
 
-//   {
-//     path: '/excel',
-//     component: Layout,
-//     redirect: '/excel/export-excel',
-//     name: 'Excel',
-//     meta: {
-//       title: 'Excel',
-//       icon: 'excel'
-//     },
-//     children: [
-//       {
-//         path: 'export-excel',
-//         component: () => import('@/views/excel/export-excel'),
-//         name: 'ExportExcel',
-//         meta: { title: 'Export Excel' }
-//       },
-//       {
-//         path: 'export-selected-excel',
-//         component: () => import('@/views/excel/select-excel'),
-//         name: 'SelectExcel',
-//         meta: { title: 'Export Selected' }
-//       },
-//       {
-//         path: 'export-merge-header',
-//         component: () => import('@/views/excel/merge-header'),
-//         name: 'MergeHeader',
-//         meta: { title: 'Merge Header' }
-//       },
-//       {
-//         path: 'upload-excel',
-//         component: () => import('@/views/excel/upload-excel'),
-//         name: 'UploadExcel',
-//         meta: { title: 'Upload Excel' }
-//       }
-//     ]
-//   },
+  //   {
+  //     path: '/zip',
+  //     component: Layout,
+  //     redirect: '/zip/download',
+  //     alwaysShow: true,
+  //     name: 'Zip',
+  //     meta: { title: 'Zip', icon: 'zip' },
+  //     children: [
+  //       {
+  //         path: 'download',
+  //         component: () => import('@/views/zip/index'),
+  //         name: 'ExportZip',
+  //         meta: { title: 'Export Zip' }
+  //       }
+  //     ]
+  //   },
 
-//   {
-//     path: '/zip',
-//     component: Layout,
-//     redirect: '/zip/download',
-//     alwaysShow: true,
-//     name: 'Zip',
-//     meta: { title: 'Zip', icon: 'zip' },
-//     children: [
-//       {
-//         path: 'download',
-//         component: () => import('@/views/zip/index'),
-//         name: 'ExportZip',
-//         meta: { title: 'Export Zip' }
-//       }
-//     ]
-//   },
+  //   {
+  //     path: '/pdf',
+  //     component: Layout,
+  //     redirect: '/pdf/index',
+  //     children: [
+  //       {
+  //         path: 'index',
+  //         component: () => import('@/views/pdf/index'),
+  //         name: 'PDF',
+  //         meta: { title: 'PDF', icon: 'pdf' }
+  //       }
+  //     ]
+  //   },
+  //   {
+  //     path: '/pdf/download',
+  //     component: () => import('@/views/pdf/download'),
+  //     hidden: true
+  //   },
 
-//   {
-//     path: '/pdf',
-//     component: Layout,
-//     redirect: '/pdf/index',
-//     children: [
-//       {
-//         path: 'index',
-//         component: () => import('@/views/pdf/index'),
-//         name: 'PDF',
-//         meta: { title: 'PDF', icon: 'pdf' }
-//       }
-//     ]
-//   },
-//   {
-//     path: '/pdf/download',
-//     component: () => import('@/views/pdf/download'),
-//     hidden: true
-//   },
+  //   {
+  //     path: '/theme',
+  //     component: Layout,
+  //     children: [
+  //       {
+  //         path: 'index',
+  //         component: () => import('@/views/theme/index'),
+  //         name: 'Theme',
+  //         meta: { title: 'Theme', icon: 'theme' }
+  //       }
+  //     ]
+  //   },
 
-//   {
-//     path: '/theme',
-//     component: Layout,
-//     children: [
-//       {
-//         path: 'index',
-//         component: () => import('@/views/theme/index'),
-//         name: 'Theme',
-//         meta: { title: 'Theme', icon: 'theme' }
-//       }
-//     ]
-//   },
+  //   {
+  //     path: '/clipboard',
+  //     component: Layout,
+  //     children: [
+  //       {
+  //         path: 'index',
+  //         component: () => import('@/views/clipboard/index'),
+  //         name: 'ClipboardDemo',
+  //         meta: { title: 'Clipboard', icon: 'clipboard' }
+  //       }
+  //     ]
+  //   },
 
-//   {
-//     path: '/clipboard',
-//     component: Layout,
-//     children: [
-//       {
-//         path: 'index',
-//         component: () => import('@/views/clipboard/index'),
-//         name: 'ClipboardDemo',
-//         meta: { title: 'Clipboard', icon: 'clipboard' }
-//       }
-//     ]
-//   },
-
-//   {
-//     path: 'external-link',
-//     component: Layout,
-//     children: [
-//       {
-//         path: 'https://github.com/PanJiaChen/vue-element-admin',
-//         meta: {title: 'External Link', icon: 'link' }
-//       }
-//     ]
-//   },
+  //   {
+  //     path: 'external-link',
+  //     component: Layout,
+  //     children: [
+  //       {
+  //         path: 'https://github.com/PanJiaChen/vue-element-admin',
+  //         meta: {title: 'External Link', icon: 'link' }
+  //       }
+  //     ]
+  //   },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
-
 
 const createRouter = () => new Router({
   // mode: 'history', // require service support
