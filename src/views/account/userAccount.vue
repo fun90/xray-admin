@@ -181,8 +181,8 @@
         </el-form-item>
         <el-form-item label="规则模式:">
           <el-select v-model="whitelistModel" placeholder="请选择" @change="changeRuleModel">
-            <el-option key="false" label="黑名单" value="false" />
             <el-option key="true" label="白名单" value="true" />
+            <el-option key="false" label="黑名单" value="false" />
           </el-select>
         </el-form-item>
         <el-form-item label="订阅链接:">
@@ -273,7 +273,7 @@ export default {
       },
 
       currentAppType: '',
-      whitelistModel: 'false',
+      whitelistModel: 'true',
       appTypes: [],
 
       accountDialog: false,

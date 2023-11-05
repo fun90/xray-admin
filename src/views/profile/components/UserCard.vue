@@ -1,13 +1,13 @@
 <template>
   <el-card style="margin-bottom:20px;">
     <div slot="header" class="clearfix">
-      <span>About me</span>
+      <span>关于我</span>
     </div>
 
     <div class="user-profile">
       <div class="box-center">
         <pan-thumb :image="user.avatar" :height="'100px'" :width="'100px'" :hoverable="false">
-          <div>Hello</div>
+          <div>你好</div>
           {{ user.role }}
         </pan-thumb>
       </div>

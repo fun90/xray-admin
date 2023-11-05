@@ -2,7 +2,7 @@
   <div class="user-activity">
     <div v-for="(item,index) in list" :key="index" class="post">
       <div class="user-block">
-        <img class="img-circle" :src="'https://apic.douyucdn.cn/upload/avanew/face/201705/15/17/109dae304969a8dc9dfd318c34cb71e9_middle.jpg'+avatarPrefix">
+        <img class="img-circle" src="@/assets/logo.png">
         <span class="username text-muted">{{ item.name }}</span>
         <span class="description">{{ item.updateTime | parseTime('{y}-{m}-{d}') }}</span>
       </div>
