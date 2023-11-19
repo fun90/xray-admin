@@ -2,7 +2,7 @@
   <div class="dashboard-editor-container">
     <el-form v-if="account" size="mini">
       <el-row>
-        <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col">
+        <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col-first">
           <el-card>
             <div slot="header">
               使用说明
@@ -15,55 +15,47 @@
           </el-card>
         </el-col>
       </el-row>
+      <el-row>
+        <el-col :span="12" class="card-panel-col-first">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>有效时间: </span>
+              <span v-if="account.toDate>new Date().getTime()">  {{ account.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+              <span v-else style="color: red; ">  {{ account.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+            </div>
+            <div class="text item">
+              <h2>{{ days }}天</h2>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="12" class="card-panel-col">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span style="padding-right: 20px">流量结算时间: {{ account.statVO.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+              <span v-if="(account.statVO?(account.statVO.flow/1024/1024/1024).toFixed(2) : 0)<account.bandwidth" style="font-weight: bold">{{ account.statVO ? (account.statVO.flow / 1024 / 1024 / 1024).toFixed(2) : 0 }}</span>
+              <span v-else style="font-weight: bold; color: red">{{ account.statVO ? (account.statVO.flow / 1024 / 1024 / 1024).toFixed(2) : 0 }}</span>/{{ account.bandwidth }}GB/{{ account.cycle }}天
+            </div>
+            <div class="text item">
+              <el-progress type="circle" width="64" :percentage="parseFloat((account.statVO.flow / 1024 / 1024 / 10 / account.bandwidth).toFixed(2))" />
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
       <el-row :gutter="20">
-        <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col">
+        <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col-first">
           <el-card>
             <div slot="header">
-
               账号: {{ account.accountNo }}
               <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
             </div>
             <el-row>
               <el-col :xs="24" :sm="24" :lg="12">
-                <el-form-item label="等级:">
-                  {{ levelFilter(account.level) }}
-                </el-form-item>
-                <el-form-item label=" 有效时间:">
-                  <!--  {{ account.fromDate | parseTime('{y}-{m}-{d} {h}:{i}') }} - -->
-
-                  <span>
-                    <span v-if="account.toDate>new Date().getTime()">  {{ account.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-                    <span v-else style="color: red; ">  {{ account.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-                  </span>
-                </el-form-item>
-
                 <el-form-item label=" 账号状态:">
-                  <!--  {{ account.fromDate | parseTime('{y}-{m}-{d} {h}:{i}') }} - -->
                   <span>
                     <font v-if="account.status == 1">  {{ account.status |accountStatusFilter }}</font>
                     <font v-else color="red">  {{ account.status |accountStatusFilter }}</font>
                   </span>
                 </el-form-item>
-
-                <el-form-item v-if="account.statVO" label=" 结算时间:">
-                  <span>{{ account.statVO.toDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-                </el-form-item>
-                <el-form-item label="速率:">
-                  <span>{{ account.speed | speedFilter }}</span>
-                </el-form-item>
-                <el-form-item label="周期:">
-                  <!-- <span>周期：</span> -->
-                  {{ account.cycle }}天/周期
-                </el-form-item>
-                <el-form-item label="流量:">
-
-                  <span>
-                    <span v-if="(account.statVO?(account.statVO.flow/1024/1024/1024).toFixed(2) : 0)<account.bandwidth">{{ account.statVO ? (account.statVO.flow / 1024 / 1024 / 1024).toFixed(2) : 0 }}</span>
-                    <span v-else style="color: red; ">{{ account.statVO ? (account.statVO.flow / 1024 / 1024 / 1024).toFixed(2) : 0 }}</span>/{{ account.bandwidth }}GB/周期</span>
-                </el-form-item>
-                <el-form-item label="AlterId:">{{ account.maxConnection }}
-                </el-form-item>
-
                 <el-form-item label="1、选择客户端类型:" class="strong-label">
                   <el-col :xs="24" :sm="6" :lg="6">
                     <el-select v-model="currentAppType" placeholder="请选择" @change="changeAppType">
@@ -156,7 +148,7 @@ export default {
     return {
       levelOptions: null,
       appTypes: null,
-      currentAppType: '',
+      currentAppType: 'clash3',
       serverId: null,
       server: null,
       accountFormOptions: [{
@@ -197,7 +189,8 @@ export default {
         page: 1,
         pageSize: 20,
         userEmail: ''
-      }
+      },
+      days: 0
     }
   },
   computed: {},
@@ -252,12 +245,12 @@ export default {
     },
     formatDate(date) {
       if (!date) return ''
-      var year = date.getFullYear()
-      var month = date.getMonth() + 1
-      var day = date.getDate()
-      var hour = date.getHours()
-      var minute = date.getMinutes()
-      var second = date.getSeconds()
+      const year = date.getFullYear()
+      const month = date.getMonth() + 1
+      const day = date.getDate()
+      const hour = date.getHours()
+      const minute = date.getMinutes()
+      const second = date.getSeconds()
       return year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
     },
     getRemoteAccount() {
@@ -270,13 +263,8 @@ export default {
         } else {
           this.account.subscriptionUrl2 = this.account.subscriptionUrl
         }
-        // this.isEdit = !!this.account.subscriptionUrl
-        // for (var i = 0; i < this.list.length; i++) {
-        //   var content = this.list[i].content
-        //   this.list[i].content = content ? JSON.parse(content) : {}
-        //   this.list[i].toColip = 'vmess://' + Base64.encode(content)
-        // }
-        // console.log(this.list);
+        this.days = ((this.account.toDate - new Date().getTime()) / 3600000 / 24).toFixed(0)
+        this.days = this.days > 0 ? this.days : 0
       })
     },
     levelFilter(status) {
@@ -296,8 +284,12 @@ export default {
   margin-bottom: 10px;
 }
 
+.card-panel-col-first {
+  margin-bottom: 20px;
+}
+
 .card-panel-col {
-  margin-right: 10px;
+  padding-left: 10px;
   margin-bottom: 20px;
 }
 

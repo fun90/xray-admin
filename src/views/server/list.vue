@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-table v-loading="listLoading" :data="list" border fit highlight-current-row header-cell-style="cellStyle" cell-style="cellStyle">
+    <el-table v-loading="listLoading" :data="list" border fit highlight-current-row>
 
       <!--      <el-table-column label="服务器ID">-->
       <!--        <template slot-scope="scope">-->
@@ -14,9 +14,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="180" label="域名">
+      <el-table-column width="180" label="代理地址">
         <template slot-scope="scope">
-          <span>{{ scope.row.clientDomain }}</span>
+          <span>{{ scope.row.v2rayIp }}</span>
         </template>
       </el-table-column>
 
@@ -32,21 +32,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="80" label="传输方式">
+      <el-table-column width="400" label="协议属性">
         <template slot-scope="scope">
-          <span>{{ scope.row.network }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column width="150" label="inboundTag">
-        <template slot-scope="scope">
-          <span>{{ scope.row.inboundTag }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column width="80" label="wsPath">
-        <template slot-scope="scope">
-          <span>{{ scope.row.wsPath }}</span>
+          <span>{{ scope.row.protocolField }}</span>
         </template>
       </el-table-column>
 
@@ -135,7 +123,6 @@ export default {
     this.getList()
   },
   methods: {
-    cellStyle() { return 'text-align:left' },
     handleDelete(id) {
       this.$confirm('此操作将永久删除, 是否继续?', '提示', {
         confirmButtonText: '确定',

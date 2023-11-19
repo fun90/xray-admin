@@ -5,23 +5,8 @@
       <el-form-item label="服务器名称" prop="serverName">
         <el-input v-model="postForm.serverName" />
       </el-form-item>
-
-      <el-form-item label="域名" prop="clientDomain">
-        <el-input v-model="postForm.clientDomain" />
-      </el-form-item>
-
-      <el-form-item label="端口" prop="clientPort">
-        <el-input v-model="postForm.clientPort" />
-      </el-form-item>
-
-      <el-form-item label="支持TLS" prop="supportTLS">
-        <el-radio-group v-model="postForm.supportTLS">
-          <el-radio v-model="postForm.supportTLS" :label="true">是</el-radio>
-          <el-radio v-model="postForm.supportTLS" :label="false">否</el-radio>
-        </el-radio-group>
-      </el-form-item>
       <el-form-item label="协议" prop="protocol">
-        <el-select v-model="postForm.protocol">
+        <el-select v-model="postForm.protocol" @change="changeProtocol">
           <el-option
             v-for="item in protocolOptions"
             :key="item.value"
@@ -30,27 +15,23 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="传输方式" prop="network">
-        <el-select v-model="postForm.network">
-          <el-option
-            v-for="item in networkOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
+      <el-form-item label="代理地址" prop="v2rayIp">
+        <el-input v-model="postForm.v2rayIp" placeholder="127.0.0.1/xxx.com" />
       </el-form-item>
-      <el-form-item label="Xray地址" prop="v2rayIp">
-        <el-input v-model="postForm.v2rayIp" placeholder="127.0.0.1" />
+      <el-form-item label="代理端口" prop="clientPort">
+        <el-input v-model="postForm.clientPort" />
       </el-form-item>
-      <el-form-item label="Xray API 端口" prop="v2rayManagerPort">
+      <el-form-item label="API端口" prop="v2rayManagerPort">
         <el-input v-model="postForm.v2rayManagerPort" />
       </el-form-item>
-      <el-form-item label="inboundTag" prop="inboundTag">
-        <el-input v-model="postForm.inboundTag" />
+      <el-form-item label="SNI域名" prop="clientDomain">
+        <el-input v-model="postForm.clientDomain" placeholder="可能与代理地址不同" />
       </el-form-item>
-      <el-form-item label="ws路径" prop="wsPath">
-        <el-input v-model="postForm.wsPath" placeholder="/ws/%s/" />
+      <el-form-item label="协议属性" prop="protocolField">
+        <el-input v-model="postForm.protocolField" type="textarea" :rows="5" placeholder="{&quot;wsPath&quot;:&quot;/ws&quot;}" />
+      </el-form-item>
+      <el-form-item v-show="fieldVisible" label="inboundTag" prop="inboundTag">
+        <el-input v-model="postForm.inboundTag" />
       </el-form-item>
       <el-form-item label="服务描述">
         <el-input v-model="postForm.desc" />
@@ -89,6 +70,7 @@
 
 <script>
 import { addServer, getServer, updateServer } from '@/api/server'
+import { getProtocols } from '@/api/config'
 
 const defaultForm = {
   serverName: '',
@@ -98,10 +80,10 @@ const defaultForm = {
 
   // proxy中间件管理 ip port;
 
-  proxyIp: '127.0.0.1',
+  proxyIp: '',
   proxyPort: 8091,
   // v2ray 开放 的 ip 和端口
-  v2rayIp: '127.0.0.1',
+  v2rayIp: '',
   v2rayPort: 6001,
   v2rayManagerPort: 62789,
   // 流量倍数
@@ -116,8 +98,8 @@ const defaultForm = {
   inboundTag: '',
   // 单账号最大连接数
   maxConnection: 100,
-  // ws路径
-  wsPath: '/ws/%s/'
+  // 与协议相对应的属性
+  protocolField: '{}'
 }
 const defaultRules = {
   serverName: { required: true, trigger: 'blur' },
@@ -172,12 +154,8 @@ export default {
         value: 4,
         label: '等级4'
       }],
-      protocolOptions: [{ value: 'trojan', label: 'Trojan' }, { value: 'vless', label: 'VLESS' }, {
-        value: 'vmess',
-        label: 'VEMSS'
-      }],
-      networkOptions: [{ value: 'tcp', label: 'TCP' }, { value: 'ws', label: 'WebSocket' }, { value: 'kcp', label: 'KCP' }]
-
+      protocolOptions: [],
+      fieldVisible: true
     }
   },
   computed: {},
@@ -186,6 +164,9 @@ export default {
       const id = this.$route.params && this.$route.params.id
       this.fetchData(id)
     }
+    getProtocols().then(response => {
+      this.protocolOptions = response.obj
+    })
 
     // Why need to make a copy of this.$route here?
     // Because if you enter this page and quickly switch tag, may be in the execution of the setTagsViewTitle function, this.$route is no longer pointing to the current page
@@ -194,14 +175,12 @@ export default {
   },
   methods: {
     fetchData(id) {
-      console.log('server get id ' + id)
       getServer(id).then(response => {
         this.postForm = response.obj
-        this.postForm
+        this.changeProtocol(this.postForm.protocol)
       })
     },
     submitForm() {
-      console.log(this.postForm)
       this.$refs.postForm.validate(valid => {
         if (valid) {
           this.loading = true
@@ -224,6 +203,11 @@ export default {
           return false
         }
       })
+    },
+    changeProtocol(protocol) {
+      const visible = protocol !== 'hysteria' && protocol !== 'hysteria2'
+      this.fieldVisible = visible
+      defaultRules.inboundTag.required = visible
     }
   }
 }

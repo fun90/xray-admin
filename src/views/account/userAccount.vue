@@ -23,7 +23,7 @@
         <template slot-scope="scope">
           <div><span>用户：{{ scope.row.userVO?scope.row.userVO.email:'' }}</span></div>
           <div><span>备注：{{ scope.row.userVO?scope.row.userVO.remark:'' }}</span></div>
-          <div><span>账号：{{ scope.row.uuid }}</span></div>
+          <div><span>账号：{{ scope.row.accountNo }}</span></div>
 
         </template>
       </el-table-column>
@@ -63,7 +63,7 @@
 
       <el-table-column align="left" label="">
         <template slot-scope="scope">
-          <div>单服务器连接数：{{ scope.row.maxConnection }}/账号</div>
+          <div>uuid：{{ scope.row.uuid }}</div>
           <div>账号等级:{{ levelFilter(scope.row.level) }}</div>
           <div>账号状态:{{ scope.row.status |accountStatusFilter }}</div>
         </template>
@@ -95,7 +95,7 @@
     <!-- 账号管理 -->
     <el-dialog title="修改" :visible.sync="accountDialog" :before-close="handlerAccountCloseDialog">
       <el-form ref="accountForm" :model="accountForm" label-width="80px">
-        <el-form-item label="账号">
+        <el-form-item label="uuid">
           <el-input v-model="accountForm.uuid" readonly><el-button slot="append" @click="generatorUUID()">更新</el-button></el-input>
         </el-form-item>
         <el-form-item label="周期">

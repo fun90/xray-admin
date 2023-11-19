@@ -11,6 +11,16 @@ export function getClients() {
 }
 
 /**
+ * 获取支持的协议 vip
+ */
+export function getProtocols() {
+  return request({
+    url: `/config/protocols`,
+    method: 'get'
+  })
+}
+
+/**
  * 获取账号等级 vip
  */
 export function getAccountLevels() {
