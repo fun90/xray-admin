@@ -207,7 +207,7 @@ export default {
     changeAppType(appId) {
       this.currentAppId = appId
       const client = this.clients.find(item => item.id === this.currentAppId)
-      const path = `/${client.id}/${client.target}/true`
+      const path = `/${client.id}/${client.target}`
       if (this.account.subscriptionUrl.includes('/subscribe2/')) {
         this.account.subscriptionUrl2 = this.account.subscriptionUrl + path
       } else {

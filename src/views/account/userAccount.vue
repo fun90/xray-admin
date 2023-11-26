@@ -330,7 +330,7 @@ export default {
     },
     handlerSubscribeDialog(done) {
       this.currentAppId = ''
-      this.whitelistModel = 'false'
+      this.whitelistModel = 'true'
       this.subscriptionUrl = ''
       this.subscriptionUrl2 = ''
       done()
@@ -452,19 +452,23 @@ export default {
     },
     setSubscriptionUrl() {
       const client = this.clients.find(item => item.id === this.currentAppId)
-      const path = `/${client.id}/${client.target}/${this.whitelistModel}`
+      const path = `/${client.id}/${client.target}`
+      let urlObj = null
       if (this.accountForm.subscriptionUrl.includes('/subscribe2/')) {
-        this.accountForm.subscriptionUrl2 = this.accountForm.subscriptionUrl + path
+        urlObj = new URL(this.accountForm.subscriptionUrl + path)
       } else {
         const parsedUrl = new URL(this.accountForm.subscriptionUrl)
         const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}${parsedUrl.pathname}`.replace('subscribe', 'subscribe2')
-        const urlObj = new URL(baseUrl + path)
+        urlObj = new URL(baseUrl + path)
         const token = parsedUrl.searchParams.get('token')
         const timestamp = parsedUrl.searchParams.get('timestamp')
         urlObj.searchParams.set('token', token)
         urlObj.searchParams.set('timestamp', timestamp)
-        this.accountForm.subscriptionUrl2 = urlObj.toString()
       }
+      if (this.whitelistModel !== null && this.whitelistModel === 'false') {
+        urlObj.searchParams.set('whitelist', this.whitelistModel)
+      }
+      this.accountForm.subscriptionUrl2 = urlObj.toString()
     },
     generatorUUID() {
       getUUID().then(response => {
