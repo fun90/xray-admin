@@ -36,7 +36,7 @@
               <span v-else style="font-weight: bold; color: red">{{ account.statVO ? (account.statVO.flow / 1024 / 1024 / 1024).toFixed(2) : 0 }}</span>/{{ account.bandwidth }}GB/{{ account.cycle }}天
             </div>
             <div class="text item">
-              <el-progress type="circle" width="64" :percentage="parseFloat((account.statVO.flow / 1024 / 1024 / 10 / account.bandwidth).toFixed(2))" />
+              <el-progress type="circle" :width="64" :percentage="parseFloat((account.statVO.flow / 1024 / 1024 / 10 / account.bandwidth).toFixed(2))" />
             </div>
           </el-card>
         </el-col>
@@ -58,12 +58,12 @@
                 </el-form-item>
                 <el-form-item label="1、选择客户端类型:" class="strong-label">
                   <el-col :xs="24" :sm="6" :lg="6">
-                    <el-select v-model="currentAppType" placeholder="请选择" @change="changeAppType">
+                    <el-select v-model="currentAppId" placeholder="请选择" @change="changeAppType">
                       <el-option
-                        v-for="item in appTypes"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
+                        v-for="item in clients"
+                        :key="item.id"
+                        :label="item.app"
+                        :value="item.id"
                       />
                     </el-select>
                   </el-col>
@@ -147,8 +147,8 @@ export default {
   data() {
     return {
       levelOptions: null,
-      appTypes: null,
-      currentAppType: 'clash3',
+      clients: null,
+      currentAppId: null,
       serverId: null,
       server: null,
       accountFormOptions: [{
@@ -197,22 +197,27 @@ export default {
   created() {
     this.getRemoteAccount()
     getClients().then(response => {
-      this.appTypes = response.obj
+      this.clients = response.obj
     })
     getAccountLevels().then(response => {
       this.levelOptions = response.obj
     })
   },
   methods: {
-    changeAppType(appTypeValue) {
-      this.currentAppType = appTypeValue
-      appTypeValue = appTypeValue === 'shadowrocket' ? 'clash3' : appTypeValue
-      if (this.account.subconverterUrl !== '0' && this.account.subscriptionUrl) {
-        this.account.subscriptionUrl2 = this.account.subconverterUrl + '?target=' + appTypeValue + '&url=' + encodeURIComponent(this.account.subscriptionUrl)
+    changeAppType(appId) {
+      this.currentAppId = appId
+      const client = this.clients.find(item => item.id === this.currentAppId)
+      const path = `/${client.id}/${client.target}/true`
+      if (this.account.subscriptionUrl.includes('/subscribe2/')) {
+        this.account.subscriptionUrl2 = this.account.subscriptionUrl + path
       } else {
-        const urlObj = new URL(this.account.subscriptionUrl)
-        urlObj.searchParams.set('target', appTypeValue)
-        urlObj.searchParams.set('type', '1')
+        const parsedUrl = new URL(this.account.subscriptionUrl)
+        const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}${parsedUrl.pathname}`.replace('subscribe', 'subscribe2')
+        const urlObj = new URL(baseUrl + path)
+        const token = parsedUrl.searchParams.get('token')
+        const timestamp = parsedUrl.searchParams.get('timestamp')
+        urlObj.searchParams.set('token', token)
+        urlObj.searchParams.set('timestamp', timestamp)
         this.account.subscriptionUrl2 = urlObj.toString()
       }
     },
@@ -258,13 +263,9 @@ export default {
 
       getAccount(1).then(response => {
         this.account = response.obj
-        if (this.account.subconverterUrl !== '0' && this.account.subscriptionUrl) {
-          this.account.subscriptionUrl2 = this.account.subconverterUrl + '?target=' + this.currentAppType + '&url=' + encodeURIComponent(this.account.subscriptionUrl)
-        } else {
-          this.account.subscriptionUrl2 = this.account.subscriptionUrl
-        }
         this.days = ((this.account.toDate - new Date().getTime()) / 3600000 / 24).toFixed(0)
         this.days = this.days > 0 ? this.days : 0
+        this.changeAppType(1)
       })
     },
     levelFilter(status) {

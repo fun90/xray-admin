@@ -6,6 +6,8 @@ Xray管理面板，由[v2ray-manager-console](https://github.com/master-coder-ll
 ## 开发
 nodejs: v16.20.0
 
+`nvm use 16.20.0`
+
 `npm install`
 
 `npm run dev`

@@ -170,12 +170,12 @@
     <el-dialog title="订阅链接" :visible.sync="subscribeDialog" :before-close="handlerSubscribeDialog">
       <el-form label-width="80px">
         <el-form-item label="客户端:">
-          <el-select v-model="currentAppType" placeholder="请选择" @change="changeAppType">
+          <el-select v-model="currentAppId" placeholder="请选择" @change="changeAppType">
             <el-option
-              v-for="item in appTypes"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in clients"
+              :key="item.id"
+              :label="item.app"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
@@ -272,9 +272,9 @@ export default {
         serverIds: []
       },
 
-      currentAppType: '',
+      currentAppId: '',
       whitelistModel: 'true',
-      appTypes: [],
+      clients: [],
 
       accountDialog: false,
       subscribeDialog: false,
@@ -306,7 +306,7 @@ export default {
     this.getList()
     this.refreshServerList()
     getClients().then(response => {
-      this.appTypes = response.obj
+      this.clients = response.obj
     })
     getAccountLevels().then(response => {
       this.levelOptions = response.obj
@@ -329,7 +329,7 @@ export default {
       //  this.accountForm.rangeDate= [new Date().setTime(this.accountForm.fromDate),new Date().setTime(this.accountForm.toDate)]
     },
     handlerSubscribeDialog(done) {
-      this.currentAppType = ''
+      this.currentAppId = ''
       this.whitelistModel = 'false'
       this.subscriptionUrl = ''
       this.subscriptionUrl2 = ''
@@ -440,8 +440,8 @@ export default {
         this.getList()
       })
     },
-    changeAppType(appTypeValue) {
-      this.currentAppType = appTypeValue
+    changeAppType(appId) {
+      this.currentAppId = appId
       this.setSubscriptionUrl()
       this.$message.success('切换成功，请复制或扫码')
     },
@@ -451,13 +451,18 @@ export default {
       this.$message.success('切换成功，请复制或扫码')
     },
     setSubscriptionUrl() {
-      if (this.accountForm.subconverterUrl !== '0' && this.accountForm.subscriptionUrl) {
-        this.accountForm.subscriptionUrl2 = this.accountForm.subconverterUrl + '?target=' + this.currentAppType + '&whitelist=' + this.whitelistModel + '&url=' + encodeURIComponent(this.accountForm.subscriptionUrl)
+      const client = this.clients.find(item => item.id === this.currentAppId)
+      const path = `/${client.id}/${client.target}/${this.whitelistModel}`
+      if (this.accountForm.subscriptionUrl.includes('/subscribe2/')) {
+        this.accountForm.subscriptionUrl2 = this.accountForm.subscriptionUrl + path
       } else {
-        const urlObj = new URL(this.accountForm.subscriptionUrl)
-        urlObj.searchParams.set('target', this.currentAppType)
-        urlObj.searchParams.set('type', '1')
-        urlObj.searchParams.set('whitelist', this.whitelistModel)
+        const parsedUrl = new URL(this.accountForm.subscriptionUrl)
+        const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}${parsedUrl.pathname}`.replace('subscribe', 'subscribe2')
+        const urlObj = new URL(baseUrl + path)
+        const token = parsedUrl.searchParams.get('token')
+        const timestamp = parsedUrl.searchParams.get('timestamp')
+        urlObj.searchParams.set('token', token)
+        urlObj.searchParams.set('timestamp', timestamp)
         this.accountForm.subscriptionUrl2 = urlObj.toString()
       }
     },
