@@ -98,14 +98,7 @@ export default {
       return statusMap[status]
     },
     levelFilter(level) {
-      const levelMap = {
-        '0': '等级0',
-        '1': '等级1',
-        '2': '等级2',
-        '3': '等级3',
-        '4': '等级4'
-      }
-      return levelMap[level]
+      return '等级' + level
     }
   },
   data() {

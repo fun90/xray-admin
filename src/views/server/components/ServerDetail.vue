@@ -70,7 +70,7 @@
 
 <script>
 import { addServer, getServer, updateServer } from '@/api/server'
-import { getProtocols } from '@/api/config'
+import { getAccountLevels, getProtocols } from '@/api/config'
 
 const defaultForm = {
   serverName: '',
@@ -147,13 +147,7 @@ export default {
       rules: Object.assign({}, defaultRules),
       tempRoute: {},
       statusOptions: [{ value: 1, label: '上线' }, { value: 0, label: '下线' }],
-      levelOptions: [{ value: 0, label: '等级0' }, { value: 1, label: '等级1' }, { value: 2, label: '等级2' }, {
-        value: 3,
-        label: '等级3'
-      }, {
-        value: 4,
-        label: '等级4'
-      }],
+      levelOptions: [],
       protocolOptions: [],
       fieldVisible: true
     }
@@ -167,7 +161,9 @@ export default {
     getProtocols().then(response => {
       this.protocolOptions = response.obj
     })
-
+    getAccountLevels().then(response => {
+      this.levelOptions = response.obj
+    })
     // Why need to make a copy of this.$route here?
     // Because if you enter this page and quickly switch tag, may be in the execution of the setTagsViewTitle function, this.$route is no longer pointing to the current page
     // https://github.com/PanJiaChen/vue-element-admin/issues/1221
