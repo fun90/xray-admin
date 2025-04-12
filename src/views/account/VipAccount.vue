@@ -80,14 +80,11 @@
                     </el-input>
                   </el-col>
                 </el-form-item>
-              </el-col>
 
-              <el-col :xs="24" :sm="24" :lg="12">
-                <div v-if="account.subscriptionUrl2">
-                  <el-form-item label="订阅链接二维码">
-                    <vue-qr :text="account.subscriptionUrl2" qid="qrcode2" />
-                  </el-form-item>
-                </div>
+                <el-form-item label="使用说明">
+                  <el-link icon="el-icon-link" type="primary" :href="account.docsUrl" target="_blank">查看说明</el-link>
+                  <el-button @click="handlerCopy(account.docsUrl,$event)">复制链接</el-button>
+                </el-form-item>
               </el-col>
             </el-row>
 
@@ -102,7 +99,6 @@
 <script>
 import { getAccount, generatorSubscriptionUrl } from '@/api/account'
 import clip from '@/utils/clipboard'
-import VueQr from 'vue-qr'
 import store from '@/store'
 import permission from '@/directive/permission/index.js'
 import { getAccountLevels, getClients } from '@/api/config'
@@ -110,7 +106,7 @@ import Notice from '../dashboard/vip/components/Notice'
 
 export default {
   name: 'UserAccount',
-  components: { VueQr, Notice },
+  components: { Notice },
   directives: { permission },
   filters: {
     speedFilter: function(v) {

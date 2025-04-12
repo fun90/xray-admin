@@ -195,6 +195,10 @@
             <vue-qr :text="accountForm.subscriptionUrl2" qid="qrcode2" />
           </div>
         </el-form-item>
+        <el-form-item label="使用说明">
+          <el-link icon="el-icon-link" type="primary" :href="accountForm.docsUrl" target="_blank">查看说明</el-link>
+          <el-button @click="handlerCopy(accountForm.docsUrl,$event)">复制链接</el-button>
+        </el-form-item>
       </el-form>
     </el-dialog>
 
@@ -207,7 +211,6 @@ import { allAvailableServers } from '@/api/server'
 import { getClients, getAccountLevels, generateRulesFile } from '@/api/config'
 import Pagination from '@/components/Pagination'
 import clip from '@/utils/clipboard'
-import { Base64 } from 'js-base64'
 import store from '@/store'
 import permission from '@/directive/permission/index.js'
 import VueQr from 'vue-qr'
@@ -280,7 +283,6 @@ export default {
       subscribeDialog: false,
 
       roles: store.getters.roles,
-      toColip: '',
       opAccountId: null,
       serverTotal: 0,
       chooseServerId: null,
@@ -344,7 +346,6 @@ export default {
       clip(text, event)
     },
     submitUpdateAccount() {
-      this.accountForm.content = null
       updateAccount(this.accountForm).then(_ => {
         this.$message.success('提交成功')
         this.getList()
@@ -390,12 +391,6 @@ export default {
       this.listLoading = true
       accountsList(this.listQuery).then(response => {
         this.list = response.obj.content
-        for (var i = 0; i < this.list.length; i++) {
-          var content = this.list[i].content
-          this.list[i].content = content ? JSON.parse(content) : {}
-          this.list[i].toColip = 'vmess://' + Base64.encode(content)
-        }
-        // console.log(this.list);
         this.total = response.obj.total
         this.listLoading = false
       })
